@@ -1,51 +1,29 @@
-
-
-let deferredPrompt = null;
-
-async function redirectIfLoggedIn() {
+async function checkExistingSession() {
   try {
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (error) {
-      console.error("SESSION ERROR:", error);
+      console.error("SESSION CHECK ERROR:", error);
       return;
     }
 
     if (data?.session) {
-      window.location.href = "dashboard.html";
+      window.location.href = "./dashboard.html";
     }
   } catch (err) {
-    console.error("INDEX REDIRECT ERROR:", err);
+    console.error("INDEX SESSION ERROR:", err);
   }
 }
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  const installBtn = document.getElementById("installBtn");
-  if (installBtn) {
-    installBtn.style.display = "inline-block";
-  }
-});
-
-document.getElementById("installBtn")?.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-
-  const installBtn = document.getElementById("installBtn");
-  if (installBtn) {
-    installBtn.style.display = "none";
-  }
-});
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("Service worker registered"))
-    .catch((err) => console.error("Service worker error:", err));
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("./service-worker.js");
+      console.log("Service worker registered");
+    } catch (err) {
+      console.error("Service worker registration failed:", err);
+    }
+  });
 }
 
-redirectIfLoggedIn();
+checkExistingSession();

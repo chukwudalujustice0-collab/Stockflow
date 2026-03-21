@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Settings</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Settings</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
@@ -20,68 +26,136 @@
     </header>
 
     <main class="app-content">
+
       <section class="modern-card">
-        <h3>Profile</h3>
-        <p><strong>Name:</strong> <span id="settingsFullName">-</span></p>
-        <p><strong>Email:</strong> <span id="settingsEmail">-</span></p>
-        <p><strong>Role:</strong> <span id="settingsRole">-</span></p>
+        <div class="section-row">
+          <h3>Profile Settings</h3>
+        </div>
+
+        <form id="profileSettingsForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="settingsFullNameInput" />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="settingsEmailInput" disabled />
+          </div>
+
+          <button type="submit" class="btn-primary">Save Profile</button>
+        </form>
+
+        <p id="profileSettingsMessage" class="message"></p>
       </section>
 
       <section class="modern-card">
-        <h3>Company</h3>
-        <p><strong>Company Name:</strong> <span id="settingsCompanyName">-</span></p>
-        <p><strong>Company ID:</strong> <span id="settingsCompanyId">-</span></p>
+        <div class="section-row">
+          <h3>Company Settings</h3>
+        </div>
+
+        <form id="companySettingsForm">
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" id="settingsCompanyNameInput" />
+          </div>
+
+          <button type="submit" class="btn-primary">Save Company</button>
+        </form>
+
+        <p id="companySettingsMessage" class="message"></p>
       </section>
 
       <section class="modern-card">
-        <h3>Subscription</h3>
-        <p><strong>Plan:</strong> <span id="settingsPlan">Free</span></p>
-        <p><strong>Status:</strong> <span id="settingsPlanStatus">Inactive</span></p>
-        <p><strong>Expires:</strong> <span id="settingsPlanExpiry">-</span></p>
+        <div class="section-row">
+          <h3>Subscription</h3>
+        </div>
 
-        <div style="margin-top:12px;">
-          <a href="pricing.html" class="btn-primary">Upgrade Plan</a>
+        <div class="settings-summary-box">
+          <p><strong>Plan:</strong> <span id="settingsPlanText">-</span></p>
+          <p><strong>Status:</strong> <span id="settingsPlanStatus">-</span></p>
+          <p><strong>Store Limit:</strong> <span id="settingsPlanStores">-</span></p>
+          <p><strong>Staff Limit:</strong> <span id="settingsPlanStaff">-</span></p>
+        </div>
+
+        <a href="./pricing.html" class="btn-outline">Manage Subscription</a>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>More Tools</h3>
+        </div>
+
+        <div class="quick-actions-grid">
+          <a href="./stores.html" class="quick-action-card">
+            <span class="quick-action-icon">🏬</span>
+            <span class="quick-action-title">Stores</span>
+            <span class="quick-action-sub">Manage locations</span>
+          </a>
+
+          <a href="./staff.html" class="quick-action-card">
+            <span class="quick-action-icon">👥</span>
+            <span class="quick-action-title">Staff</span>
+            <span class="quick-action-sub">Manage invitations</span>
+          </a>
+
+          <a href="./reports.html" class="quick-action-card">
+            <span class="quick-action-icon">📊</span>
+            <span class="quick-action-title">Reports</span>
+            <span class="quick-action-sub">View business summary</span>
+          </a>
+
+          <a href="./notifications.html" class="quick-action-card">
+            <span class="quick-action-icon">🔔</span>
+            <span class="quick-action-title">Notifications</span>
+            <span class="quick-action-sub">View updates</span>
+          </a>
         </div>
       </section>
 
-      <section class="modern-card">
-        <h3>Quick Links</h3>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a href="company.html" class="btn-outline">Company</a>
-          <a href="stores.html" class="btn-outline">Stores</a>
-          <a href="staff.html" class="btn-outline">Staff</a>
-          <a href="reports.html" class="btn-outline">Reports</a>
+      <section class="modern-card danger-zone-card">
+        <div class="section-row">
+          <h3>Session</h3>
         </div>
+
+        <button id="logoutBtnSettings" type="button" class="btn-danger">Logout</button>
       </section>
 
-      <section class="modern-card">
-        <h3>Session</h3>
-        <button id="logoutBtn" type="button" class="btn-danger">Logout</button>
-      </section>
     </main>
 
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
-        <span>🏠</span><small>Home</small>
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item">
-        <span>📦</span><small>Products</small>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
       </a>
-      <a href="sales.html" class="bottom-nav-item">
-        <span>🛒</span><small>Sales</small>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
       </a>
-      <a href="settings.html" class="bottom-nav-item active">
-        <span>⚙️</span><small>Settings</small>
+
+      <a href="./settings.html" class="bottom-nav-item active">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
-      <button id="logoutBtnNav" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span><small>Logout</small>
+
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span>
+        <small>Logout</small>
       </button>
     </nav>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/settings.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/settings.js"></script>
 </body>
 </html>

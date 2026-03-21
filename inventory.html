@@ -2,27 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockFlow | Inventory Intelligence</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockFlow | Inventory</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
+    <!-- TOP -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
-        <h1 class="page-title">Inventory Intelligence</h1>
+        <h1 class="page-title">Inventory</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
       </div>
     </header>
 
+    <!-- MAIN -->
     <main class="app-content">
+
+      <!-- STATS -->
       <section class="stats-grid-modern">
         <div class="modern-stat-card">
-          <p>Low Stock Items</p>
+          <p>Low Stock</p>
           <h3 id="lowStockCount">0</h3>
         </div>
 
@@ -32,31 +42,32 @@
         </div>
       </section>
 
+      <!-- RESTOCK -->
       <section class="modern-card">
         <h3>Restock Product</h3>
 
         <form id="restockForm">
           <div class="form-group">
-            <label for="inventoryStore">Store</label>
+            <label>Store</label>
             <select id="inventoryStore" required>
               <option value="">Select store</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="inventoryProduct">Product</label>
+            <label>Product</label>
             <select id="inventoryProduct" required>
               <option value="">Select product</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="restockQty">Quantity Added</label>
+            <label>Quantity Added</label>
             <input type="number" id="restockQty" min="1" required />
           </div>
 
           <div class="form-group">
-            <label for="restockNote">Note</label>
+            <label>Note</label>
             <input type="text" id="restockNote" placeholder="Optional note" />
           </div>
 
@@ -66,43 +77,67 @@
         <p id="inventoryMessage" class="message"></p>
       </section>
 
+      <!-- LOW STOCK LIST -->
       <section class="modern-card">
         <div class="section-row">
           <h3>Low Stock Products</h3>
         </div>
-        <div id="lowStockList">Loading...</div>
+
+        <div id="lowStockList">
+          Loading...
+        </div>
       </section>
 
+      <!-- MOVEMENTS -->
       <section class="modern-card">
         <div class="section-row">
           <h3>Recent Stock Movements</h3>
         </div>
-        <div id="stockMovementList">Loading...</div>
+
+        <div id="stockMovementList">
+          Loading...
+        </div>
       </section>
+
     </main>
 
+    <!-- NAV -->
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
-        <span>🏠</span><small>Home</small>
+
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item">
-        <span>📦</span><small>Products</small>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
       </a>
-      <a href="sales.html" class="bottom-nav-item">
-        <span>🛒</span><small>Sales</small>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
       </a>
-      <a href="inventory.html" class="bottom-nav-item active">
-        <span>📊</span><small>Inventory</small>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span><small>Logout</small>
+        <span>🚪</span>
+        <small>Logout</small>
       </button>
+
     </nav>
+
   </div>
 
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/inventory.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/inventory.js"></script>
 </body>
 </html>

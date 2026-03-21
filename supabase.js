@@ -1,5 +1,11 @@
-const SUPABASE_URL = "https://qclghpggnxjpjffhclau.supabase.co";
+// Ensure config is loaded first
+if (!window.APP_CONFIG) {
+  alert("App configuration missing. Load config.js first.");
+  throw new Error("APP_CONFIG not found");
+}
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjbGdocGdnbnhqcGpmZmhjbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjAzMzIsImV4cCI6MjA4OTQ5NjMzMn0.u4LlL4t0ouMC5dTbxNag1ZUvnwRzPtOjg1gvTJZdQQk";
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client
+const supabaseClient = supabase.createClient(
+  window.APP_CONFIG.supabaseUrl,
+  window.APP_CONFIG.supabaseAnonKey
+);

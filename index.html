@@ -2,195 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>StockFlow | Built by Ceetify</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b5ed7">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/style.css"/>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-    }
-
-    .landing-wrap {
-      max-width: 1100px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .logo {
-      font-size: 28px;
-      font-weight: bold;
-      color: #0b5ed7;
-    }
-
-    .logo span {
-      color: #ff3b3b;
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #ff3b3b, #0b5ed7);
-      color: white;
-      padding: 40px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-    }
-
-    .hero h1 {
-      margin: 0 0 10px;
-      font-size: 36px;
-    }
-
-    .hero p {
-      margin-bottom: 20px;
-      max-width: 500px;
-    }
-
-    .hero-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-    }
-
-    .feature-card {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-
-    .feature-card h3 {
-      margin-bottom: 8px;
-    }
-
-    #installBtn {
-      display: none;
-      margin-top: 15px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Smart Business OS</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
-
 <body>
+  <div class="landing-header">
+    <div class="container nav-wrap">
+      <div>
+        <h1 class="logo">StockFlow</h1>
+        <p class="tagline">Smart Business OS by Ceetify</p>
+      </div>
 
-<div class="landing-wrap">
-
-  <!-- TOP -->
-  <div class="topbar">
-    <div class="logo">
-      Stock<span>Flow</span>
-    </div>
-
-    <div class="nav-buttons">
-      <a href="login.html" class="btn-outline">Login</a>
-      <a href="signup.html" class="btn-primary">Sign Up</a>
-    </div>
-  </div>
-
-  <!-- HERO -->
-  <div class="hero">
-    <h1>Smart Business & Inventory System</h1>
-    <p>
-      Manage products, sales, staff, stores and generate receipts — all in one powerful system built by Ceetify.
-    </p>
-
-    <div class="hero-buttons">
-      <a href="signup.html" class="btn-primary">Get Started</a>
-      <a href="install.html" class="btn-outline">Download App</a>
-    </div>
-
-    <button id="installBtn" class="btn-primary">Install App</button>
-  </div>
-
-  <!-- FEATURES -->
-  <div class="features">
-    <div class="feature-card">
-      <h3>📦 Product Management</h3>
-      <p>Add, track and manage stock easily.</p>
-    </div>
-
-    <div class="feature-card">
-      <h3>🛒 Sales & POS</h3>
-      <p>Modern checkout with receipt generation.</p>
-    </div>
-
-    <div class="feature-card">
-      <h3>👥 Staff Roles</h3>
-      <p>Invite staff and assign store access.</p>
-    </div>
-
-    <div class="feature-card">
-      <h3>🏬 Multi Stores</h3>
-      <p>Manage multiple store locations.</p>
+      <div class="landing-nav">
+        <a href="./login.html" class="btn-outline">Login</a>
+        <a href="./signup.html" class="btn-primary">Create Account</a>
+      </div>
     </div>
   </div>
 
-</div>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <h2>Run sales, stock, debts, staff and reports in one place.</h2>
+        <p>
+          StockFlow helps businesses manage products, stores, staff, inventory,
+          credit sales, cash submission, reports and more from a clean mobile-first dashboard.
+        </p>
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
+        <div class="hero-actions">
+          <a href="./signup.html" class="btn-primary">Get Started</a>
+          <a href="./install.html" class="btn-outline">Install App</a>
+        </div>
+      </div>
 
-<script>
-let deferredPrompt;
+      <div class="hero-card">
+        <div class="mini-stat">
+          <h3>📦 Inventory</h3>
+          <p>Track stock, restock and low stock alerts.</p>
+        </div>
 
-// AUTO REDIRECT IF LOGGED IN
-async function checkUser() {
-  const { data } = await supabaseClient.auth.getSession();
-  if (data.session) {
-    window.location.href = "dashboard.html";
-  }
-}
-checkUser();
+        <div class="mini-stat">
+          <h3>🛒 POS Sales</h3>
+          <p>Record sales, print receipts and handle credit sales.</p>
+        </div>
 
-// INSTALL PROMPT
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById("installBtn").style.display = "block";
-});
+        <div class="mini-stat">
+          <h3>📊 Reports</h3>
+          <p>Monitor sales, cash submissions and business performance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-document.getElementById("installBtn").addEventListener("click", async () => {
-  if (!deferredPrompt) {
-    window.location.href = "install.html";
-    return;
-  }
+  <section class="features-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Everything your business needs</h2>
+        <p>Built for stores, teams and growing businesses.</p>
+      </div>
 
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Products & Images</h3>
+          <p>Add products, upload images, control price and quantity per store.</p>
+        </div>
 
-// SERVICE WORKER
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-</script>
+        <div class="feature-card">
+          <h3>Stores & Staff</h3>
+          <p>Create multiple stores, invite staff and assign role-based access.</p>
+        </div>
 
+        <div class="feature-card">
+          <h3>Debt Book</h3>
+          <p>Track customer debts, partial repayments and statements.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Business Reports</h3>
+          <p>Review sales, cash submitted, stock movements and key insights.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Ready to launch your business system?</h2>
+        <p>Access StockFlow on mobile and desktop with one secure account.</p>
+        <div class="hero-actions" style="justify-content:center;">
+          <a href="./signup.html" class="btn-primary">Start Free</a>
+          <a href="https://stockflow.ceetice.com" class="btn-outline">Live Site</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/index.js"></script>
 </body>
 </html>

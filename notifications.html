@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Notifications</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Notifications</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
@@ -20,37 +26,52 @@
     </header>
 
     <main class="app-content">
+
       <section class="modern-card">
         <div class="section-row">
           <h3>All Notifications</h3>
-          <button id="markAllReadBtn" class="btn-outline" type="button">Mark all read</button>
         </div>
-        <div id="notificationsList">Loading...</div>
+
+        <div id="notificationList">
+          Loading...
+        </div>
       </section>
+
     </main>
 
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
-        <span>🏠</span><small>Home</small>
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item">
-        <span>📦</span><small>Products</small>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
       </a>
-      <a href="sales.html" class="bottom-nav-item">
-        <span>🛒</span><small>Sales</small>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
       </a>
-      <a href="notifications.html" class="bottom-nav-item active">
-        <span>🔔</span><small>Alerts</small>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span><small>Logout</small>
+        <span>🚪</span>
+        <small>Logout</small>
       </button>
     </nav>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/notifications.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/notifications.js"></script>
 </body>
 </html>

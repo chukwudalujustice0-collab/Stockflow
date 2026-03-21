@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockFlow | Ask AI</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body class="app-body">
+  <div class="mobile-app-shell">
+
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Ask AI</h1>
+      </div>
+
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+
+      <section class="modern-card ai-hero-card">
+        <div>
+          <p class="eyebrow-text">Smart Assistant</p>
+          <h3 style="margin:4px 0;">Business insights powered by your data</h3>
+          <p class="small-text">
+            Ask about top products, low stock, sales trends and business performance.
+          </p>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <h3>Ask a question</h3>
+
+        <form id="aiForm">
+          <div class="form-group">
+            <label>Your question</label>
+            <textarea
+              id="aiQuestion"
+              rows="4"
+              placeholder="Example: Which product is selling best this week?"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">Ask AI</button>
+        </form>
+
+        <p id="aiMessage" class="message"></p>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Quick prompts</h3>
+        </div>
+
+        <div class="quick-actions-grid">
+          <button type="button" class="quick-action-card text-left-card" onclick="usePrompt('Which product is selling best?')">
+            <span class="quick-action-title">Best selling product</span>
+            <span class="quick-action-sub">See top performer</span>
+          </button>
+
+          <button type="button" class="quick-action-card text-left-card" onclick="usePrompt('Which items are low in stock?')">
+            <span class="quick-action-title">Low stock items</span>
+            <span class="quick-action-sub">Spot products to restock</span>
+          </button>
+
+          <button type="button" class="quick-action-card text-left-card" onclick="usePrompt('How are my sales going?')">
+            <span class="quick-action-title">Sales summary</span>
+            <span class="quick-action-sub">View overall performance</span>
+          </button>
+
+          <button type="button" class="quick-action-card text-left-card" onclick="usePrompt('What should I restock first?')">
+            <span class="quick-action-title">Restock advice</span>
+            <span class="quick-action-sub">Prioritize inventory</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>AI Response</h3>
+        </div>
+
+        <div id="aiResponseBox">
+          <p class="small-text">Your answer will appear here.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
+      </a>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
+      </a>
+
+      <a href="./ask-ai.html" class="bottom-nav-item active">
+        <span>✨</span>
+        <small>Ask AI</small>
+      </a>
+
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span>
+        <small>Logout</small>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/ask-ai.js"></script>
+</body>
+</html>

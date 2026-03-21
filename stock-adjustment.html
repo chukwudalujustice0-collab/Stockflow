@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Stock Adjustment</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Stock Adjustment</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
@@ -20,26 +26,27 @@
     </header>
 
     <main class="app-content">
+
       <section class="modern-card">
         <h3>Adjust Product Stock</h3>
 
         <form id="stockAdjustmentForm">
           <div class="form-group">
-            <label for="adjustStore">Store</label>
+            <label>Store</label>
             <select id="adjustStore" required>
               <option value="">Select store</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="adjustProduct">Product</label>
+            <label>Product</label>
             <select id="adjustProduct" required>
               <option value="">Select product</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="adjustType">Adjustment Type</label>
+            <label>Adjustment Type</label>
             <select id="adjustType" required>
               <option value="">Select type</option>
               <option value="adjustment_in">Add Stock</option>
@@ -48,12 +55,12 @@
           </div>
 
           <div class="form-group">
-            <label for="adjustQty">Quantity</label>
+            <label>Quantity</label>
             <input type="number" id="adjustQty" min="1" required />
           </div>
 
           <div class="form-group">
-            <label for="adjustNote">Reason / Note</label>
+            <label>Reason / Note</label>
             <input type="text" id="adjustNote" placeholder="e.g. damaged items, stock correction" />
           </div>
 
@@ -67,32 +74,47 @@
         <div class="section-row">
           <h3>Recent Adjustments</h3>
         </div>
-        <div id="adjustmentList">Loading...</div>
+
+        <div id="adjustmentList">
+          Loading...
+        </div>
       </section>
+
     </main>
 
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
-        <span>🏠</span><small>Home</small>
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item">
-        <span>📦</span><small>Products</small>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
       </a>
-      <a href="inventory.html" class="bottom-nav-item">
-        <span>📊</span><small>Inventory</small>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
       </a>
-      <a href="stock-adjustment.html" class="bottom-nav-item active">
-        <span>🧮</span><small>Adjust</small>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span><small>Logout</small>
+        <span>🚪</span>
+        <small>Logout</small>
       </button>
     </nav>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/stock-adjustment.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/stock-adjustment.js"></script>
 </body>
 </html>

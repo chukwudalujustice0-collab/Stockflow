@@ -5,18 +5,11 @@ async function loadStoresPage() {
   if (!auth) return;
 
   const { profile } = auth;
-
   fillHeader(profile);
 
   if (!profile.company_id) {
-    alert("Create a company first.");
-    window.location.href = "company.html";
-    return;
-  }
-
-  if (!["director", "assistant_director", "store_manager"].includes(profile.role || "")) {
-    alert("You do not have permission to access stores.");
-    window.location.href = "dashboard.html";
+    const list = document.getElementById("storesList");
+    if (list) list.innerHTML = "<p>Create a company first.</p>";
     return;
   }
 
@@ -29,16 +22,15 @@ async function loadStores(profile) {
 
   let stores = [];
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
+  if (["director", "assistant_director"].includes(profile.role)) {
     const { data, error } = await supabaseClient
       .from("stores")
       .select("*")
       .eq("company_id", profile.company_id)
       .order("created_at", { ascending: false });
 
-    console.log("STORES LOAD:", data, error);
-
     if (error) {
+      console.error("LOAD STORES ERROR:", error);
       list.innerHTML = "<p>Unable to load stores.</p>";
       return;
     }
@@ -50,16 +42,15 @@ async function loadStores(profile) {
       .select("store_id")
       .eq("staff_id", currentUser.id);
 
-    console.log("STORE ACCESS ROWS:", accessRows, accessError);
-
     if (accessError) {
+      console.error("STORE ACCESS ERROR:", accessError);
       list.innerHTML = "<p>Unable to load assigned stores.</p>";
       return;
     }
 
-    const storeIds = (accessRows || []).map((row) => row.store_id);
+    const ids = (accessRows || []).map((row) => row.store_id);
 
-    if (!storeIds.length) {
+    if (!ids.length) {
       list.innerHTML = "<p>No store assigned.</p>";
       return;
     }
@@ -67,12 +58,11 @@ async function loadStores(profile) {
     const { data, error } = await supabaseClient
       .from("stores")
       .select("*")
-      .in("id", storeIds)
+      .in("id", ids)
       .order("created_at", { ascending: false });
 
-    console.log("ASSIGNED STORES:", data, error);
-
     if (error) {
+      console.error("ASSIGNED STORES ERROR:", error);
       list.innerHTML = "<p>Unable to load assigned stores.</p>";
       return;
     }
@@ -83,7 +73,7 @@ async function loadStores(profile) {
   storesCache = stores;
 
   if (!stores.length) {
-    list.innerHTML = "<p>No stores created yet.</p>";
+    list.innerHTML = "<p>No stores yet.</p>";
     return;
   }
 
@@ -94,7 +84,7 @@ async function loadStores(profile) {
       <small>${store.address || ""}</small>
 
       ${
-        ["director", "assistant_director"].includes(currentProfile.role || "")
+        ["director", "assistant_director"].includes(currentProfile.role)
           ? `
             <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
               <button type="button" class="btn-outline inline-btn" onclick="startEditStore('${store.id}')">Edit</button>
@@ -116,9 +106,11 @@ async function getLatestSubscription() {
     .limit(1)
     .maybeSingle();
 
-  console.log("LATEST SUBSCRIPTION:", data, error);
+  if (error) {
+    console.error("SUBSCRIPTION ERROR:", error);
+    return null;
+  }
 
-  if (error) return null;
   return data || null;
 }
 
@@ -131,13 +123,12 @@ async function canCreateMoreStores(companyId) {
     .select("*", { count: "exact", head: true })
     .eq("company_id", companyId);
 
-  console.log("STORE COUNT:", count, error);
-
   if (error) {
+    console.error("STORE COUNT ERROR:", error);
     return { allowed: false, message: "Unable to verify store limit." };
   }
 
-  if (count >= maxStores) {
+  if ((count || 0) >= maxStores) {
     return {
       allowed: false,
       message: `Your current plan allows only ${maxStores} store${maxStores > 1 ? "s" : ""}. Upgrade your plan to add more stores.`
@@ -148,13 +139,21 @@ async function canCreateMoreStores(companyId) {
 }
 
 function resetStoreForm() {
-  document.getElementById("editingStoreId").value = "";
-  document.getElementById("storeName").value = "";
-  document.getElementById("storeType").value = "";
-  document.getElementById("storeAddress").value = "";
-  document.getElementById("storeFormTitle").textContent = "Create Store";
-  document.getElementById("saveStoreBtn").textContent = "Save Store";
-  document.getElementById("cancelEditBtn").style.display = "none";
+  const editingId = document.getElementById("editingStoreId");
+  const name = document.getElementById("storeName");
+  const type = document.getElementById("storeType");
+  const address = document.getElementById("storeAddress");
+  const title = document.getElementById("storeFormTitle");
+  const saveBtn = document.getElementById("saveStoreBtn");
+  const cancelBtn = document.getElementById("cancelEditBtn");
+
+  if (editingId) editingId.value = "";
+  if (name) name.value = "";
+  if (type) type.value = "";
+  if (address) address.value = "";
+  if (title) title.textContent = "Create Store";
+  if (saveBtn) saveBtn.textContent = "Save";
+  if (cancelBtn) cancelBtn.style.display = "none";
 }
 
 function startEditStore(storeId) {
@@ -166,14 +165,14 @@ function startEditStore(storeId) {
   document.getElementById("storeType").value = store.store_type || "";
   document.getElementById("storeAddress").value = store.address || "";
   document.getElementById("storeFormTitle").textContent = "Edit Store";
-  document.getElementById("saveStoreBtn").textContent = "Update Store";
+  document.getElementById("saveStoreBtn").textContent = "Update";
   document.getElementById("cancelEditBtn").style.display = "inline-block";
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function deleteStore(storeId) {
-  if (!["director", "assistant_director"].includes(currentProfile.role || "")) {
+  if (!["director", "assistant_director"].includes(currentProfile.role)) {
     alert("Only director or assistant director can delete stores.");
     return;
   }
@@ -182,21 +181,20 @@ async function deleteStore(storeId) {
   if (!confirmed) return;
 
   const msg = document.getElementById("storeMessage");
-  msg.textContent = "Deleting store...";
+  if (msg) msg.textContent = "Deleting store...";
 
   const { error } = await supabaseClient
     .from("stores")
     .delete()
     .eq("id", storeId);
 
-  console.log("DELETE STORE ERROR:", error);
-
   if (error) {
-    msg.textContent = error.message || "Unable to delete store.";
+    console.error("DELETE STORE ERROR:", error);
+    if (msg) msg.textContent = error.message || "Unable to delete store.";
     return;
   }
 
-  msg.textContent = "Store deleted successfully.";
+  if (msg) msg.textContent = "Store deleted successfully.";
   await loadStores(currentProfile);
   resetStoreForm();
 }
@@ -215,58 +213,55 @@ document.getElementById("storeForm")?.addEventListener("submit", async (e) => {
   const address = document.getElementById("storeAddress").value.trim();
 
   if (!currentProfile?.company_id) {
-    msg.textContent = "Create a company first.";
+    if (msg) msg.textContent = "Create a company first.";
     return;
   }
 
-  if (!["director", "assistant_director"].includes(currentProfile.role || "")) {
-    msg.textContent = "Only director or assistant director can create or edit stores.";
+  if (!["director", "assistant_director"].includes(currentProfile.role)) {
+    if (msg) msg.textContent = "Only director or assistant director can create or edit stores.";
     return;
   }
 
   if (!name) {
-    msg.textContent = "Enter store name.";
+    if (msg) msg.textContent = "Enter store name.";
     return;
   }
 
   if (editingStoreId) {
-    msg.textContent = "Updating store...";
+    if (msg) msg.textContent = "Updating store...";
 
-    const { data, error } = await supabaseClient
+    const { error } = await supabaseClient
       .from("stores")
       .update({
         name,
         store_type: storeType,
         address
       })
-      .eq("id", editingStoreId)
-      .select()
-      .single();
-
-    console.log("STORE UPDATE:", data, error);
+      .eq("id", editingStoreId);
 
     if (error) {
-      msg.textContent = error.message || "Unable to update store.";
+      console.error("UPDATE STORE ERROR:", error);
+      if (msg) msg.textContent = error.message || "Unable to update store.";
       return;
     }
 
-    msg.textContent = "Store updated successfully.";
+    if (msg) msg.textContent = "Store updated successfully.";
     resetStoreForm();
     await loadStores(currentProfile);
     return;
   }
 
-  msg.textContent = "Checking plan...";
+  if (msg) msg.textContent = "Checking plan...";
 
   const planCheck = await canCreateMoreStores(currentProfile.company_id);
   if (!planCheck.allowed) {
-    msg.textContent = planCheck.message;
+    if (msg) msg.textContent = planCheck.message;
     return;
   }
 
-  msg.textContent = "Saving store...";
+  if (msg) msg.textContent = "Saving store...";
 
-  const { data, error } = await supabaseClient
+  const { error } = await supabaseClient
     .from("stores")
     .insert([
       {
@@ -275,18 +270,15 @@ document.getElementById("storeForm")?.addEventListener("submit", async (e) => {
         store_type: storeType,
         address
       }
-    ])
-    .select()
-    .single();
-
-  console.log("STORE INSERT:", data, error);
+    ]);
 
   if (error) {
-    msg.textContent = error.message || "Unable to create store.";
+    console.error("CREATE STORE ERROR:", error);
+    if (msg) msg.textContent = error.message || "Unable to create store.";
     return;
   }
 
-  msg.textContent = "Store created successfully.";
+  if (msg) msg.textContent = "Store created successfully.";
   resetStoreForm();
   await loadStores(currentProfile);
 });

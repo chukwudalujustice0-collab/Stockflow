@@ -3,18 +3,17 @@ async function loadStaffPage() {
   if (!auth) return;
 
   const { profile } = auth;
-
   fillHeader(profile);
 
   if (!profile.company_id) {
-    alert("Create a company first.");
-    window.location.href = "company.html";
+    const invitationList = document.getElementById("invitationList");
+    if (invitationList) invitationList.innerHTML = "<p>Create a company first.</p>";
     return;
   }
 
   if (!["director", "assistant_director"].includes(profile.role || "")) {
     alert("You do not have permission to access staff invitations.");
-    window.location.href = "dashboard.html";
+    window.location.href = "./dashboard.html";
     return;
   }
 
@@ -34,7 +33,10 @@ async function loadCompanyStores(companyId) {
     .eq("company_id", companyId)
     .order("created_at", { ascending: false });
 
-  if (error) return;
+  if (error) {
+    console.error("LOAD STORES ERROR:", error);
+    return;
+  }
 
   (data || []).forEach((store) => {
     const option = document.createElement("option");
@@ -55,6 +57,7 @@ async function loadInvitations(companyId) {
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("LOAD INVITATIONS ERROR:", error);
     invitationList.innerHTML = "<p>Unable to load invitations.</p>";
     return;
   }
@@ -66,8 +69,8 @@ async function loadInvitations(companyId) {
 
   invitationList.innerHTML = data.map((invite) => `
     <div class="modern-list-card">
-      <strong>${invite.invitee_email}</strong><br>
-      <small>Role: ${invite.role}</small><br>
+      <strong>${invite.invitee_email}</strong>
+      <p>Role: ${invite.role}</p>
       <small>Status: ${invite.status}</small><br>
       <small>Sent: ${new Date(invite.created_at).toLocaleString()}</small>
     </div>
@@ -84,26 +87,26 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
   const storeId = document.getElementById("inviteStore").value || null;
 
   if (!currentProfile?.company_id) {
-    inviteMessage.textContent = "Create a company first.";
+    if (inviteMessage) inviteMessage.textContent = "Create a company first.";
     return;
   }
 
   if (!email) {
-    inviteMessage.textContent = "Enter staff email.";
+    if (inviteMessage) inviteMessage.textContent = "Enter staff email.";
     return;
   }
 
   if (!role) {
-    inviteMessage.textContent = "Select a role.";
+    if (inviteMessage) inviteMessage.textContent = "Select a role.";
     return;
   }
 
   if (["store_manager", "sales_rep"].includes(role) && !storeId) {
-    inviteMessage.textContent = "Select a store.";
+    if (inviteMessage) inviteMessage.textContent = "Select a store.";
     return;
   }
 
-  inviteMessage.textContent = "Checking user...";
+  if (inviteMessage) inviteMessage.textContent = "Checking user...";
 
   const { data: matchingUsers, error: profileError } = await supabaseClient
     .from("profiles")
@@ -111,19 +114,20 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
     .eq("email", email);
 
   if (profileError) {
-    inviteMessage.textContent = profileError.message || "Unable to check user.";
+    console.error("PROFILE LOOKUP ERROR:", profileError);
+    if (inviteMessage) inviteMessage.textContent = profileError.message || "Unable to check user.";
     return;
   }
 
   if (!matchingUsers || !matchingUsers.length) {
-    inviteMessage.textContent = "No user found with this email. Ask them to sign up first.";
+    if (inviteMessage) inviteMessage.textContent = "No user found with this email. Ask them to sign up first.";
     return;
   }
 
   const inviteeProfile = matchingUsers[0];
 
   if (inviteeProfile.company_id) {
-    inviteMessage.textContent = "This user already belongs to a company.";
+    if (inviteMessage) inviteMessage.textContent = "This user already belongs to a company.";
     return;
   }
 
@@ -136,11 +140,11 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
     .maybeSingle();
 
   if (existingPending) {
-    inviteMessage.textContent = "A pending invitation already exists for this user.";
+    if (inviteMessage) inviteMessage.textContent = "A pending invitation already exists for this user.";
     return;
   }
 
-  inviteMessage.textContent = "Sending invitation...";
+  if (inviteMessage) inviteMessage.textContent = "Sending invitation...";
 
   const { data: inviteRow, error: inviteError } = await supabaseClient
     .from("staff_invitations")
@@ -151,7 +155,7 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
         invited_by: currentUser.id,
         invitee_email: email,
         invitee_user_id: inviteeProfile.id,
-        role: role,
+        role,
         status: "pending"
       }
     ])
@@ -159,7 +163,8 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
     .single();
 
   if (inviteError) {
-    inviteMessage.textContent = inviteError.message || "Unable to send invitation.";
+    console.error("INVITE ERROR:", inviteError);
+    if (inviteMessage) inviteMessage.textContent = inviteError.message || "Unable to send invitation.";
     return;
   }
 
@@ -176,28 +181,9 @@ document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e)
       }
     ]);
 
-  const emailSubject = "StockFlow Staff Invitation";
-  const emailBody = `You have been invited to join a company on StockFlow as ${role}. Please log in to your account to accept or decline the invitation.`;
-
   await supabaseClient
     .from("email_notifications")
     .insert([
       {
         user_id: inviteeProfile.id,
-        email: email,
-        subject: emailSubject,
-        body: emailBody,
-        type: "staff_invitation",
-        related_id: inviteRow.id,
-        status: "pending"
-      }
-    ]);
-
-  inviteMessage.textContent = "Invitation sent successfully.";
-  document.getElementById("inviteStaffForm").reset();
-
-  await loadCompanyStores(currentProfile.company_id);
-  await loadInvitations(currentProfile.company_id);
-});
-
-loadStaffPage();
+        email,

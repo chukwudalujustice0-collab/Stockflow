@@ -4,68 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Install StockFlow</title>
-  <link rel="stylesheet" href="css/style.css"/>
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 
-<body class="app-body">
+<body class="auth-body">
 
-<div class="mobile-app-shell">
-
-  <header class="app-topbar">
-    <div>
-      <p class="eyebrow-text">StockFlow</p>
-      <h1 class="page-title">Install App</h1>
+  <div class="auth-container">
+    <div class="brand-box">
+      <h1>StockFlow</h1>
+      <p>Install app for faster access</p>
     </div>
-  </header>
 
-  <main class="app-content">
+    <div class="card" style="text-align:center;">
+      <h3>Install StockFlow</h3>
 
-    <section class="modern-card" style="text-align:center;">
-      <h2>Install StockFlow</h2>
-      <p>Get faster access, offline support and a better experience.</p>
+      <p class="small-text">
+        Add StockFlow to your phone home screen for quick access,
+        offline support and better performance.
+      </p>
 
       <button id="installBtn" class="btn-primary" style="margin-top:15px;">
-        Install Now
+        Install App
       </button>
 
-      <p style="margin-top:15px; font-size:13px; color:#666;">
-        If install doesn't show, use your browser menu → "Add to Home Screen"
-      </p>
-    </section>
+      <p id="installMessage" class="message" style="margin-top:10px;"></p>
 
-    <section class="modern-card">
-      <h3>Why install?</h3>
-      <ul>
-        <li>⚡ Faster loading</li>
-        <li>📱 Works like a mobile app</li>
-        <li>📡 Basic offline access</li>
-        <li>🔔 Notifications (coming next)</li>
-      </ul>
-    </section>
+      <div style="margin-top:15px;">
+        <a href="./index.html" class="btn-outline">Back</a>
+      </div>
+    </div>
+  </div>
 
-  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
 
-</div>
+  <script>
+    let deferredPrompt;
 
-<script>
-let deferredPrompt;
+    const installBtn = document.getElementById("installBtn");
+    const installMessage = document.getElementById("installMessage");
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = "block";
+    });
 
-document.getElementById("installBtn").addEventListener("click", async () => {
-  if (!deferredPrompt) {
-    alert("Use browser menu → Add to Home Screen");
-    return;
-  }
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) {
+        installMessage.textContent = "Install not available. Use browser menu.";
+        return;
+      }
 
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
-</script>
+      deferredPrompt.prompt();
+
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === "accepted") {
+        installMessage.textContent = "App installed successfully!";
+      } else {
+        installMessage.textContent = "Installation cancelled.";
+      }
+
+      deferredPrompt = null;
+    });
+  </script>
 
 </body>
 </html>

@@ -1,346 +1,225 @@
-let reportSalesData = [];
+let reportDataCache = {
+  sales: [],
+  cash: [],
+  products: []
+};
 
-async function loadReportsPage(startDate = null, endDate = null) {
+async function loadReportsPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  const { user, profile } = auth;
+  const { profile } = auth;
   fillHeader(profile);
 
-  if (!profile.company_id) {
-    alert("Create a company first.");
-    window.location.href = "company.html";
-    return;
-  }
-
-  await loadReportStats(profile, user.id, startDate, endDate);
-  await loadRecentSalesReport(profile, user.id, startDate, endDate);
-  await loadLowStockReport(profile, user.id);
-  await loadRecentCashReport(profile, user.id, startDate, endDate);
+  await loadAllData(profile);
 }
 
-async function getAccessibleStoreIds(profile, userId) {
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const { data, error } = await supabaseClient
-      .from("stores")
-      .select("id")
-      .eq("company_id", profile.company_id);
+loadReportsPage();
 
-    console.log("REPORT STORES:", data, error);
-    return (data || []).map((row) => row.id);
-  }
+// ======================
+// LOAD ALL DATA
+// ======================
+async function loadAllData(profile) {
+  await Promise.all([
+    loadProducts(profile),
+    loadSales(profile),
+    loadCash(profile)
+  ]);
 
-  const { data, error } = await supabaseClient
-    .from("staff_store_access")
-    .select("store_id")
-    .eq("staff_id", userId);
-
-  console.log("REPORT STAFF ACCESS:", data, error);
-  return (data || []).map((row) => row.store_id);
+  renderReports();
 }
 
-function applyDateFilters(query, startDate, endDate) {
-  let q = query;
+// ======================
+// LOAD PRODUCTS
+// ======================
+async function loadProducts(profile) {
+  const { data } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("company_id", profile.company_id);
 
-  if (startDate) {
-    q = q.gte("created_at", `${startDate}T00:00:00`);
-  }
-
-  if (endDate) {
-    q = q.lte("created_at", `${endDate}T23:59:59`);
-  }
-
-  return q;
+  reportDataCache.products = data || [];
 }
 
-async function loadReportStats(profile, userId, startDate, endDate) {
-  const totalProductsEl = document.getElementById("reportTotalProducts");
-  const totalSalesEl = document.getElementById("reportTotalSales");
-  const cashSubmittedEl = document.getElementById("reportCashSubmitted");
-  const lowStockCountEl = document.getElementById("reportLowStockCount");
-  const differenceEl = document.getElementById("reportDifference");
+// ======================
+// LOAD SALES
+// ======================
+async function loadSales(profile) {
+  const { data } = await supabaseClient
+    .from("sales")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false });
 
-  const storeIds = await getAccessibleStoreIds(profile, userId);
+  reportDataCache.sales = data || [];
+}
 
-  let products = [];
-  let sales = [];
-  let cashRows = [];
+// ======================
+// LOAD CASH
+// ======================
+async function loadCash(profile) {
+  const { data } = await supabaseClient
+    .from("cash_submissions")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false });
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const productsQuery = supabaseClient
-      .from("products")
-      .select("id, quantity, reorder_level")
-      .eq("company_id", profile.company_id);
+  reportDataCache.cash = data || [];
+}
 
-    let salesQuery = supabaseClient
-      .from("sales")
-      .select("id, total_amount, created_at")
-      .eq("company_id", profile.company_id);
+// ======================
+// RENDER REPORT
+// ======================
+function renderReports(filtered = null) {
+  const data = filtered || reportDataCache;
 
-    let cashQuery = supabaseClient
-      .from("cash_submissions")
-      .select("id, amount, created_at")
-      .eq("company_id", profile.company_id);
-
-    salesQuery = applyDateFilters(salesQuery, startDate, endDate);
-    cashQuery = applyDateFilters(cashQuery, startDate, endDate);
-
-    const [
-      { data: productsData, error: productsError },
-      { data: salesData, error: salesError },
-      { data: cashData, error: cashError }
-    ] = await Promise.all([
-      productsQuery,
-      salesQuery,
-      cashQuery
-    ]);
-
-    console.log("REPORT PRODUCTS:", productsData, productsError);
-    console.log("REPORT SALES:", salesData, salesError);
-    console.log("REPORT CASH:", cashData, cashError);
-
-    products = productsData || [];
-    sales = salesData || [];
-    cashRows = cashData || [];
-  } else {
-    if (storeIds.length > 0) {
-      const productsQuery = supabaseClient
-        .from("products")
-        .select("id, quantity, reorder_level")
-        .in("store_id", storeIds);
-
-      let salesQuery = supabaseClient
-        .from("sales")
-        .select("id, total_amount, created_at")
-        .eq("sold_by", userId);
-
-      let cashQuery = supabaseClient
-        .from("cash_submissions")
-        .select("id, amount, created_at")
-        .eq("submitted_by", userId);
-
-      salesQuery = applyDateFilters(salesQuery, startDate, endDate);
-      cashQuery = applyDateFilters(cashQuery, startDate, endDate);
-
-      const [
-        { data: productsData, error: productsError },
-        { data: salesData, error: salesError },
-        { data: cashData, error: cashError }
-      ] = await Promise.all([
-        productsQuery,
-        salesQuery,
-        cashQuery
-      ]);
-
-      console.log("REPORT PRODUCTS:", productsData, productsError);
-      console.log("REPORT SALES:", salesData, salesError);
-      console.log("REPORT CASH:", cashData, cashError);
-
-      products = productsData || [];
-      sales = salesData || [];
-      cashRows = cashData || [];
-    }
-  }
+  const products = data.products;
+  const sales = data.sales;
+  const cash = data.cash;
 
   const totalProducts = products.length;
-  const totalSales = sales.reduce((sum, row) => sum + Number(row.total_amount || 0), 0);
-  const totalCash = cashRows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
-  const lowStockCount = products.filter(
-    (row) => Number(row.quantity || 0) <= Number(row.reorder_level || 0)
-  ).length;
+
+  const totalSales = sales.reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
+  const totalCash = cash.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+
+  const lowStock = products.filter(p => p.quantity <= (p.reorder_level || 0));
+
   const difference = totalSales - totalCash;
 
-  reportSalesData = sales;
+  document.getElementById("reportTotalProducts").textContent = totalProducts;
+  document.getElementById("reportTotalSales").textContent = formatMoney(totalSales);
+  document.getElementById("reportCashSubmitted").textContent = formatMoney(totalCash);
+  document.getElementById("reportLowStockCount").textContent = lowStock.length;
+  document.getElementById("reportDifference").textContent = formatMoney(difference);
 
-  if (totalProductsEl) totalProductsEl.textContent = totalProducts.toLocaleString();
-  if (totalSalesEl) totalSalesEl.textContent = `₦${totalSales.toLocaleString()}`;
-  if (cashSubmittedEl) cashSubmittedEl.textContent = `₦${totalCash.toLocaleString()}`;
-  if (lowStockCountEl) lowStockCountEl.textContent = lowStockCount.toLocaleString();
-  if (differenceEl) differenceEl.textContent = `₦${difference.toLocaleString()}`;
+  renderRecentSales(sales);
+  renderLowStock(lowStock);
+  renderCashList(cash);
 }
 
-async function loadRecentSalesReport(profile, userId, startDate, endDate) {
-  const box = document.getElementById("reportRecentSales");
-  if (!box) return;
+// ======================
+// HELPERS
+// ======================
+function formatMoney(val) {
+  return "₦" + Number(val || 0).toLocaleString();
+}
 
-  let data = [];
-  let error = null;
+// ======================
+// RENDER SALES
+// ======================
+function renderRecentSales(sales) {
+  const el = document.getElementById("reportRecentSales");
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    let query = supabaseClient
-      .from("sales")
-      .select("*")
-      .eq("company_id", profile.company_id)
-      .order("created_at", { ascending: false })
-      .limit(8);
-
-    query = applyDateFilters(query, startDate, endDate);
-    ({ data, error } = await query);
-  } else {
-    let query = supabaseClient
-      .from("sales")
-      .select("*")
-      .eq("sold_by", userId)
-      .order("created_at", { ascending: false })
-      .limit(8);
-
-    query = applyDateFilters(query, startDate, endDate);
-    ({ data, error } = await query);
-  }
-
-  console.log("RECENT SALES REPORT:", data, error);
-
-  if (error) {
-    box.innerHTML = `<p>${error.message}</p>`;
+  if (!sales.length) {
+    el.innerHTML = "<p>No sales</p>";
     return;
   }
 
-  if (!data || !data.length) {
-    box.innerHTML = "<p>No sales yet.</p>";
-    return;
-  }
-
-  box.innerHTML = data.map((sale) => `
+  el.innerHTML = sales.slice(0, 10).map(s => `
     <div class="modern-list-card">
-      <strong>₦${Number(sale.total_amount || 0).toLocaleString()}</strong>
-      <p>Payment: ${sale.payment_method || "-"}</p>
-      <small>${new Date(sale.created_at).toLocaleString()}</small>
+      <strong>${formatMoney(s.total_amount)}</strong>
+      <p>${s.payment_method}</p>
+      <small>${new Date(s.created_at).toLocaleString()}</small>
     </div>
   `).join("");
 }
 
-async function loadLowStockReport(profile, userId) {
-  const box = document.getElementById("reportLowStockList");
-  if (!box) return;
+// ======================
+// LOW STOCK
+// ======================
+function renderLowStock(products) {
+  const el = document.getElementById("reportLowStockList");
 
-  const storeIds = await getAccessibleStoreIds(profile, userId);
-
-  let data = [];
-  let error = null;
-
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    ({ data, error } = await supabaseClient
-      .from("products")
-      .select("*")
-      .eq("company_id", profile.company_id)
-      .order("created_at", { ascending: false }));
-  } else if (storeIds.length > 0) {
-    ({ data, error } = await supabaseClient
-      .from("products")
-      .select("*")
-      .in("store_id", storeIds)
-      .order("created_at", { ascending: false }));
-  }
-
-  console.log("LOW STOCK REPORT:", data, error);
-
-  if (error) {
-    box.innerHTML = `<p>${error.message}</p>`;
+  if (!products.length) {
+    el.innerHTML = "<p>No low stock</p>";
     return;
   }
 
-  const lowStock = (data || []).filter(
-    (row) => Number(row.quantity || 0) <= Number(row.reorder_level || 0)
-  );
-
-  if (!lowStock.length) {
-    box.innerHTML = "<p>No low stock items.</p>";
-    return;
-  }
-
-  box.innerHTML = lowStock.map((product) => `
+  el.innerHTML = products.map(p => `
     <div class="modern-list-card">
-      <strong>${product.name}</strong>
-      <p>Qty: ${product.quantity}</p>
-      <small>Reorder level: ${product.reorder_level}</small>
+      <strong>${p.name}</strong>
+      <p>Qty: ${p.quantity}</p>
+      <small>Reorder: ${p.reorder_level}</small>
     </div>
   `).join("");
 }
 
-async function loadRecentCashReport(profile, userId, startDate, endDate) {
-  const box = document.getElementById("reportCashList");
-  if (!box) return;
+// ======================
+// CASH
+// ======================
+function renderCashList(cash) {
+  const el = document.getElementById("reportCashList");
 
-  let data = [];
-  let error = null;
-
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    let query = supabaseClient
-      .from("cash_submissions")
-      .select("*")
-      .eq("company_id", profile.company_id)
-      .order("created_at", { ascending: false })
-      .limit(8);
-
-    query = applyDateFilters(query, startDate, endDate);
-    ({ data, error } = await query);
-  } else {
-    let query = supabaseClient
-      .from("cash_submissions")
-      .select("*")
-      .eq("submitted_by", userId)
-      .order("created_at", { ascending: false })
-      .limit(8);
-
-    query = applyDateFilters(query, startDate, endDate);
-    ({ data, error } = await query);
-  }
-
-  console.log("RECENT CASH REPORT:", data, error);
-
-  if (error) {
-    box.innerHTML = `<p>${error.message}</p>`;
+  if (!cash.length) {
+    el.innerHTML = "<p>No cash submitted</p>";
     return;
   }
 
-  if (!data || !data.length) {
-    box.innerHTML = "<p>No cash submissions yet.</p>";
-    return;
-  }
-
-  box.innerHTML = data.map((row) => `
+  el.innerHTML = cash.slice(0, 10).map(c => `
     <div class="modern-list-card">
-      <strong>₦${Number(row.amount || 0).toLocaleString()}</strong>
-      <p>Status: ${row.status}</p>
-      <small>${row.note || ""}</small><br>
-      <small>${new Date(row.created_at).toLocaleString()}</small>
+      <strong>${formatMoney(c.amount)}</strong>
+      <p>Status: ${c.status}</p>
+      <small>${new Date(c.created_at).toLocaleString()}</small>
     </div>
   `).join("");
 }
 
+// ======================
+// FILTER
+// ======================
 function applyFilter() {
-  const start = document.getElementById("startDate").value || null;
-  const end = document.getElementById("endDate").value || null;
-  loadReportsPage(start, end);
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+
+  let filteredSales = reportDataCache.sales;
+  let filteredCash = reportDataCache.cash;
+
+  if (start) {
+    filteredSales = filteredSales.filter(s => s.created_at >= start);
+    filteredCash = filteredCash.filter(c => c.created_at >= start);
+  }
+
+  if (end) {
+    filteredSales = filteredSales.filter(s => s.created_at <= end);
+    filteredCash = filteredCash.filter(c => c.created_at <= end);
+  }
+
+  renderReports({
+    products: reportDataCache.products,
+    sales: filteredSales,
+    cash: filteredCash
+  });
 }
 
 function clearFilter() {
   document.getElementById("startDate").value = "";
   document.getElementById("endDate").value = "";
-  loadReportsPage();
+  renderReports();
 }
 
+// ======================
+// EXPORT CSV
+// ======================
 function exportCSV() {
-  if (!reportSalesData.length) {
-    alert("No sales data to export.");
-    return;
-  }
+  const rows = [
+    ["Date", "Amount", "Payment"]
+  ];
 
-  let csv = "Date,Amount\n";
-
-  reportSalesData.forEach((sale) => {
-    csv += `${sale.created_at},${sale.total_amount}\n`;
+  reportDataCache.sales.forEach(s => {
+    rows.push([
+      new Date(s.created_at).toLocaleString(),
+      s.total_amount,
+      s.payment_method
+    ]);
   });
 
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
+  const csvContent = rows.map(e => e.join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.href = url;
   a.download = "sales_report.csv";
   a.click();
-
-  window.URL.revokeObjectURL(url);
 }
-
-loadReportsPage();

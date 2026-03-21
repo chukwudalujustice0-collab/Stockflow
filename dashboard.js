@@ -1,299 +1,255 @@
-async function loadDashboard() {
+async function loadDashboardPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  const { user, profile } = auth;
-
+  const { profile } = auth;
   fillHeader(profile);
-  applyDashboardAccess(profile);
-  await loadPendingInvitation(user.id);
-
-  const roleEl = document.getElementById("roleName");
-  const roleTextEl = document.getElementById("dashboardRoleText");
-  const companyNameEl = document.getElementById("companyName");
-  const storeCountEl = document.getElementById("storeCount");
-  const statStoreCountEl = document.getElementById("statStoreCount");
-  const storeList = document.getElementById("storeList");
-  const setupNotice = document.getElementById("setupNotice");
-
-  const roleText = profile.role || "No role yet";
-
-  if (roleEl) roleEl.textContent = roleText;
-  if (roleTextEl) roleTextEl.textContent = `Role: ${roleText}`;
 
   if (!profile.company_id) {
-    if (companyNameEl) companyNameEl.textContent = "No company yet";
-    if (storeCountEl) storeCountEl.textContent = "0";
-    if (statStoreCountEl) statStoreCountEl.textContent = "0";
-
-    if (setupNotice) {
-      setupNotice.style.display = "block";
-      setupNotice.innerHTML = `
-        <h3>Welcome to StockFlow</h3>
-        <p>Your account is ready, but you have not created a company yet.</p>
-        <p>Create your company to unlock stores, staff, products and sales.</p>
-        <a href="company.html" class="btn-primary inline-btn">Create Company</a>
-      `;
-    }
-
-    if (storeList) {
-      storeList.innerHTML = "<p>No stores available yet.</p>";
-    }
-
+    showSetupNotice();
     return;
   }
 
-  if (setupNotice) {
-    setupNotice.style.display = "none";
-  }
+  await Promise.all([
+    loadCompany(profile.company_id),
+    loadDashboardStats(profile),
+    loadAssignedStores(profile),
+    loadInvitationNotice()
+  ]);
+}
 
-  const { data: company } = await supabaseClient
+loadDashboardPage();
+
+// ======================
+// SETUP NOTICE
+// ======================
+function showSetupNotice() {
+  const box = document.getElementById("setupNotice");
+  if (!box) return;
+
+  box.style.display = "block";
+  box.innerHTML = `
+    <strong>Setup needed</strong>
+    <p style="margin-top:8px;">Create your company to start using StockFlow fully.</p>
+    <div style="margin-top:10px;">
+      <a href="./settings.html" class="btn-primary">Go to Settings</a>
+    </div>
+  `;
+}
+
+// ======================
+// COMPANY
+// ======================
+async function loadCompany(companyId) {
+  const companyNameEl = document.getElementById("companyName");
+  const roleTextEl = document.getElementById("dashboardRoleText");
+
+  const { data, error } = await supabaseClient
     .from("companies")
     .select("name")
-    .eq("id", profile.company_id)
+    .eq("id", companyId)
     .maybeSingle();
 
-  if (companyNameEl) companyNameEl.textContent = company?.name || "-";
+  if (error) {
+    console.error("COMPANY LOAD ERROR:", error);
+  }
+
+  if (companyNameEl) {
+    companyNameEl.textContent = data?.name || "My Company";
+  }
+
+  if (roleTextEl) {
+    roleTextEl.textContent = `Role: ${currentProfile.role || "-"}`;
+  }
+}
+
+// ======================
+// DASHBOARD STATS
+// ======================
+async function loadDashboardStats(profile) {
+  const storeCountEl = document.getElementById("storeCount");
+  const productCountEl = document.getElementById("productCount");
+  const salesCountEl = document.getElementById("salesCount");
+  const lowStockCountEl = document.getElementById("lowStockCount");
+
+  let storeCount = 0;
+  let productCount = 0;
+  let salesCount = 0;
+  let lowStockCount = 0;
+
+  if (["director", "assistant_director"].includes(profile.role)) {
+    const [
+      { count: storesCount },
+      { data: products },
+      { count: totalSales }
+    ] = await Promise.all([
+      supabaseClient
+        .from("stores")
+        .select("*", { count: "exact", head: true })
+        .eq("company_id", profile.company_id),
+
+      supabaseClient
+        .from("products")
+        .select("id, quantity, reorder_level")
+        .eq("company_id", profile.company_id),
+
+      supabaseClient
+        .from("sales")
+        .select("*", { count: "exact", head: true })
+        .eq("company_id", profile.company_id)
+    ]);
+
+    storeCount = storesCount || 0;
+    productCount = (products || []).length;
+    salesCount = totalSales || 0;
+    lowStockCount = (products || []).filter(
+      (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
+    ).length;
+  } else {
+    const { data: accessRows, error: accessError } = await supabaseClient
+      .from("staff_store_access")
+      .select("store_id")
+      .eq("staff_id", currentUser.id);
+
+    if (accessError) {
+      console.error("DASHBOARD ACCESS ERROR:", accessError);
+    }
+
+    const storeIds = (accessRows || []).map((row) => row.store_id);
+
+    storeCount = storeIds.length;
+
+    if (storeIds.length) {
+      const [
+        { data: products },
+        { count: totalSales }
+      ] = await Promise.all([
+        supabaseClient
+          .from("products")
+          .select("id, quantity, reorder_level")
+          .in("store_id", storeIds),
+
+        supabaseClient
+          .from("sales")
+          .select("*", { count: "exact", head: true })
+          .eq("sold_by", currentUser.id)
+      ]);
+
+      productCount = (products || []).length;
+      salesCount = totalSales || 0;
+      lowStockCount = (products || []).filter(
+        (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
+      ).length;
+    }
+  }
+
+  if (storeCountEl) storeCountEl.textContent = String(storeCount);
+  if (productCountEl) productCountEl.textContent = String(productCount);
+  if (salesCountEl) salesCountEl.textContent = String(salesCount);
+  if (lowStockCountEl) lowStockCountEl.textContent = String(lowStockCount);
+}
+
+// ======================
+// ASSIGNED STORES
+// ======================
+async function loadAssignedStores(profile) {
+  const storeList = document.getElementById("storeList");
+  if (!storeList) return;
 
   let stores = [];
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const { data } = await supabaseClient
+  if (["director", "assistant_director"].includes(profile.role)) {
+    const { data, error } = await supabaseClient
       .from("stores")
       .select("*")
       .eq("company_id", profile.company_id)
       .order("created_at", { ascending: false });
 
+    if (error) {
+      console.error("DASHBOARD STORES ERROR:", error);
+      storeList.innerHTML = "<p>Unable to load stores.</p>";
+      return;
+    }
+
     stores = data || [];
   } else {
-    const { data: accessRows } = await supabaseClient
+    const { data: accessRows, error: accessError } = await supabaseClient
       .from("staff_store_access")
       .select("store_id")
-      .eq("staff_id", user.id);
+      .eq("staff_id", currentUser.id);
 
-    const storeIds = (accessRows || []).map((row) => row.store_id);
-
-    if (storeIds.length > 0) {
-      const { data } = await supabaseClient
-        .from("stores")
-        .select("*")
-        .in("id", storeIds)
-        .order("created_at", { ascending: false });
-
-      stores = data || [];
+    if (accessError) {
+      console.error("STAFF STORE ACCESS ERROR:", accessError);
+      storeList.innerHTML = "<p>Unable to load assigned stores.</p>";
+      return;
     }
+
+    const ids = (accessRows || []).map((row) => row.store_id);
+
+    if (!ids.length) {
+      storeList.innerHTML = "<p>No store assigned yet.</p>";
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from("stores")
+      .select("*")
+      .in("id", ids)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("ASSIGNED STORES ERROR:", error);
+      storeList.innerHTML = "<p>Unable to load assigned stores.</p>";
+      return;
+    }
+
+    stores = data || [];
   }
 
-  const countText = String(stores.length);
-  if (storeCountEl) storeCountEl.textContent = countText;
-  if (statStoreCountEl) statStoreCountEl.textContent = countText;
-
-  if (!storeList) return;
-
   if (!stores.length) {
-    storeList.innerHTML = "<p>No store assigned yet.</p>";
+    storeList.innerHTML = "<p>No stores yet.</p>";
     return;
   }
 
   storeList.innerHTML = stores.map((store) => `
     <div class="modern-list-card">
-      <div>
-        <strong>${store.name}</strong>
-        <p>${store.store_type || "Store"}</p>
-        <small>${store.address || ""}</small>
-      </div>
+      <strong>${store.name}</strong>
+      <p>${store.store_type || "Store"}</p>
+      <small>${store.address || ""}</small>
     </div>
   `).join("");
 }
 
-function applyDashboardAccess(profile) {
-  const quickStoresCard = document.getElementById("quickStoresCard");
-  const quickStaffCard = document.getElementById("quickStaffCard");
-  const quickProductsCard = document.getElementById("quickProductsCard");
-  const quickSalesCard = document.getElementById("quickSalesCard");
-  const quickNotificationsCard = document.getElementById("quickNotificationsCard");
+// ======================
+// INVITATION NOTICE
+// ======================
+async function loadInvitationNotice() {
+  const notice = document.getElementById("invitationNotice");
+  if (!notice) return;
 
-  if (quickStoresCard) quickStoresCard.style.display = "none";
-  if (quickStaffCard) quickStaffCard.style.display = "none";
-  if (quickProductsCard) quickProductsCard.style.display = "none";
-  if (quickSalesCard) quickSalesCard.style.display = "none";
-  if (quickNotificationsCard) quickNotificationsCard.style.display = "flex";
-
-  if (!profile.company_id) return;
-
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    if (quickStoresCard) quickStoresCard.style.display = "flex";
-    if (quickStaffCard) quickStaffCard.style.display = "flex";
-    if (quickProductsCard) quickProductsCard.style.display = "flex";
-    if (quickSalesCard) quickSalesCard.style.display = "flex";
-    return;
-  }
-
-  if (profile.role === "store_manager") {
-    if (quickStoresCard) quickStoresCard.style.display = "flex";
-    if (quickProductsCard) quickProductsCard.style.display = "flex";
-    if (quickSalesCard) quickSalesCard.style.display = "flex";
-    return;
-  }
-
-  if (profile.role === "sales_rep") {
-    if (quickSalesCard) quickSalesCard.style.display = "flex";
-  }
-}
-
-async function loadPendingInvitation(userId) {
-  const invitationNotice = document.getElementById("invitationNotice");
-  if (!invitationNotice) return;
-
-  const { data: invite, error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("staff_invitations")
     .select("*")
-    .eq("invitee_user_id", userId)
+    .eq("invitee_user_id", currentUser.id)
     .eq("status", "pending")
     .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
-
-  if (error || !invite) {
-    invitationNotice.style.display = "none";
-    return;
-  }
-
-  let companyName = "";
-  let storeName = "";
-
-  const { data: company } = await supabaseClient
-    .from("companies")
-    .select("name")
-    .eq("id", invite.company_id)
-    .maybeSingle();
-
-  if (company) companyName = company.name;
-
-  if (invite.store_id) {
-    const { data: store } = await supabaseClient
-      .from("stores")
-      .select("name")
-      .eq("id", invite.store_id)
-      .maybeSingle();
-
-    if (store) storeName = store.name;
-  }
-
-  invitationNotice.style.display = "block";
-  invitationNotice.innerHTML = `
-    <h3>Staff Invitation</h3>
-    <p>You have been invited to join <strong>${companyName}</strong> as <strong>${invite.role}</strong>${storeName ? ` for <strong>${storeName}</strong>` : ""}.</p>
-    <button class="btn-primary inline-btn" onclick="acceptInvitation('${invite.id}')">Accept</button>
-    <button class="btn-danger inline-btn" onclick="declineInvitation('${invite.id}')">Decline</button>
-  `;
-}
-
-async function acceptInvitation(inviteId) {
-  if (!currentUser || !currentProfile) return;
-
-  const { data: invite, error } = await supabaseClient
-    .from("staff_invitations")
-    .select("*")
-    .eq("id", inviteId)
-    .maybeSingle();
-
-  if (error || !invite) {
-    alert("Invitation not found.");
-    return;
-  }
-
-  const { error: profileError } = await supabaseClient
-    .from("profiles")
-    .update({
-      company_id: invite.company_id,
-      role: invite.role
-    })
-    .eq("id", currentUser.id);
-
-  if (profileError) {
-    alert(profileError.message || "Unable to update profile.");
-    return;
-  }
-
-  if (invite.store_id) {
-    const { error: accessError } = await supabaseClient
-      .from("staff_store_access")
-      .insert([
-        {
-          staff_id: currentUser.id,
-          store_id: invite.store_id
-        }
-      ]);
-
-    if (accessError) {
-      alert(accessError.message || "Unable to assign store.");
-      return;
-    }
-  }
-
-  const { error: inviteError } = await supabaseClient
-    .from("staff_invitations")
-    .update({
-      status: "accepted",
-      responded_at: new Date().toISOString()
-    })
-    .eq("id", inviteId);
-
-  if (inviteError) {
-    alert(inviteError.message || "Unable to update invitation.");
-    return;
-  }
-
-  const { error: notificationError } = await supabaseClient
-    .from("notifications")
-    .insert([
-      {
-        user_id: currentUser.id,
-        title: "Invitation accepted",
-        message: "You have successfully joined the company.",
-        type: "system",
-        related_id: invite.id,
-        is_read: false
-      }
-    ]);
-
-  console.log("ACCEPT NOTIFICATION ERROR:", notificationError);
-
-  alert("Invitation accepted successfully.");
-  window.location.reload();
-}
-
-async function declineInvitation(inviteId) {
-  const { error } = await supabaseClient
-    .from("staff_invitations")
-    .update({
-      status: "declined",
-      responded_at: new Date().toISOString()
-    })
-    .eq("id", inviteId);
 
   if (error) {
-    alert(error.message || "Unable to decline invitation.");
+    console.error("INVITATION NOTICE ERROR:", error);
     return;
   }
 
-  const { error: notificationError } = await supabaseClient
-    .from("notifications")
-    .insert([
-      {
-        user_id: currentUser.id,
-        title: "Invitation declined",
-        message: "You declined a staff invitation.",
-        type: "system",
-        related_id: inviteId,
-        is_read: false
-      }
-    ]);
+  if (!data) {
+    notice.style.display = "none";
+    return;
+  }
 
-  console.log("DECLINE NOTIFICATION ERROR:", notificationError);
-
-  alert("Invitation declined.");
-  window.location.reload();
+  notice.style.display = "block";
+  notice.innerHTML = `
+    <strong>Pending Invitation</strong>
+    <p style="margin-top:8px;">You have a pending invitation as <strong>${data.role}</strong>.</p>
+    <small>${new Date(data.created_at).toLocaleString()}</small>
+  `;
 }
-
-loadDashboard();

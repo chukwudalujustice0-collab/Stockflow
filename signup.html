@@ -2,45 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StockFlow | Sign Up</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
-
 <body class="auth-body">
+  <div class="auth-container">
+    <div class="brand-box">
+      <h1>StockFlow</h1>
+      <p>Create your business account</p>
+    </div>
 
-<div class="auth-container">
+    <div class="card">
+      <h3>Create Account</h3>
 
-  <div class="brand-box">
-    <h1>StockFlow</h1>
-    <p>Built by Ceetify</p>
-  </div>
+      <form id="signupForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="fullName" required />
+        </div>
 
-  <div class="card">
-    <h2>Create Account</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required />
+        </div>
 
-    <form id="signupForm">
-      <input type="text" id="fullName" placeholder="Full name" required/>
-      <input type="tel" id="phone" placeholder="Phone number" required/>
-      <input type="email" id="signupEmail" placeholder="Email" required/>
-      <input type="password" id="signupPassword" placeholder="Password" required/>
-      <input type="password" id="confirmPassword" placeholder="Confirm password" required/>
+        <div class="form-group">
+          <label>Password</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="password" required />
+            <button type="button" id="togglePasswordBtn" class="btn-outline">Show</button>
+          </div>
+        </div>
 
-      <button type="submit" id="signupBtn" class="btn-primary">Sign Up</button>
-    </form>
+        <button type="submit" class="btn-primary" style="width:100%;">
+          Create Account
+        </button>
+      </form>
 
-    <p id="signupMessage" class="message"></p>
+      <p id="signupMessage" class="message"></p>
 
-    <div class="auth-footer-links">
-      <a href="login.html">Already have an account? Login</a>
+      <p style="margin-top:10px;">
+        Already have an account?
+        <a href="./login.html">Login</a>
+      </p>
     </div>
   </div>
 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/signup.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/auth.js"></script>
 </body>
 </html>

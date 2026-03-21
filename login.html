@@ -4,138 +4,72 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StockFlow | Login</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-    }
-
-    .auth-wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
-    }
-
-    .auth-card h1 {
-      margin: 0;
-      color: #0b5ed7;
-      font-size: 28px;
-    }
-
-    .auth-card p {
-      color: #6b7280;
-    }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .form-group input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #dbe4f0;
-      font-size: 14px;
-    }
-
-    .btn-primary,
-    .btn-outline {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
-    .btn-primary {
-      background: #0b5ed7;
-      color: white;
-    }
-
-    .btn-outline {
-      background: #fff;
-      color: #0b5ed7;
-      border: 1px solid #dbe4f0;
-      text-decoration: none;
-      display: inline-block;
-      text-align: center;
-      box-sizing: border-box;
-    }
-
-    .message {
-      margin-top: 12px;
-      color: #c62828;
-      min-height: 20px;
-    }
-
-    .auth-links {
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .auth-links a {
-      color: #0b5ed7;
-      text-decoration: none;
-      font-size: 14px;
-    }
-  </style>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
-<body>
-  <div class="auth-wrap">
-    <div class="auth-card">
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="brand-box">
       <h1>StockFlow</h1>
-      <p>Login to continue</p>
+      <p>Smart Business OS by Ceetify</p>
+    </div>
+
+    <div class="card">
+      <h3>Login</h3>
+      <p class="small-text">Access your business dashboard securely.</p>
 
       <form id="loginForm">
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Enter your email" required />
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            required
+            autocomplete="email"
+          />
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" required />
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              id="togglePasswordBtn"
+              class="btn-outline inline-btn"
+              style="white-space:nowrap;"
+            >
+              Show
+            </button>
+          </div>
         </div>
 
-        <button type="submit" class="btn-primary">Login</button>
+        <button type="submit" class="btn-primary" style="width:100%;">
+          Login
+        </button>
       </form>
 
-      <p id="message" class="message"></p>
+      <p id="loginMessage" class="message"></p>
 
-      <div class="auth-links">
-        <a href="signup.html">Create account</a>
-        <a href="index.html">Back to landing page</a>
+      <div class="auth-footer-links">
+        <p><a href="./signup.html">Create account</a></p>
+        <p><a href="./index.html">Back to homepage</a></p>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/auth.js"></script>
 </body>
 </html>

@@ -1,62 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Customer Statement</title>
-<link rel="stylesheet" href="css/style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockFlow | Customer Statement</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 
 <body class="app-body">
-<div class="mobile-app-shell">
+  <div class="mobile-app-shell">
 
-<header class="app-topbar">
-  <h1 class="page-title">Customer Statement</h1>
-</header>
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Customer Statement</h1>
+      </div>
 
-<main class="app-content">
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
 
-<section class="modern-card">
-  <label>Select Customer</label>
-  <select id="statementCustomer"></select>
+    <main class="app-content">
 
-  <button onclick="loadStatement()" class="btn-primary">Load Statement</button>
-</section>
+      <section class="stats-grid-modern">
+        <div class="modern-stat-card">
+          <p>Total Debt</p>
+          <h3 id="statementTotalDebt">₦0</h3>
+        </div>
 
-<section class="stats-grid-modern">
-  <div class="modern-stat-card">
-    <p>Total Debt</p>
-    <h3 id="totalDebt">₦0</h3>
+        <div class="modern-stat-card">
+          <p>Total Paid</p>
+          <h3 id="statementTotalPaid">₦0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Balance</p>
+          <h3 id="statementBalance">₦0</h3>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3 id="statementCustomerName">Customer</h3>
+        </div>
+
+        <div id="statementList">
+          Loading...
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
+      </a>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
+      </a>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
+      </a>
+
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span>
+        <small>Logout</small>
+      </button>
+    </nav>
+
   </div>
 
-  <div class="modern-stat-card">
-    <p>Total Paid</p>
-    <h3 id="totalPaid">₦0</h3>
-  </div>
-
-  <div class="modern-stat-card">
-    <p>Balance</p>
-    <h3 id="totalBalance">₦0</h3>
-  </div>
-</section>
-
-<section class="modern-card">
-  <h3>Transactions</h3>
-  <div id="statementList">Select customer</div>
-</section>
-
-<button onclick="exportStatement()" class="btn-outline">
-  Export CSV
-</button>
-
-</main>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/shared.js"></script>
-<script src="js/customer-statement.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/customer-statement.js"></script>
 </body>
 </html>

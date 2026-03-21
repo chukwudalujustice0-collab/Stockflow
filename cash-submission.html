@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Cash Submission</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Cash Submission</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
@@ -20,24 +26,25 @@
     </header>
 
     <main class="app-content">
+
       <section class="modern-card">
         <h3>Submit Cash</h3>
 
         <form id="cashSubmissionForm">
           <div class="form-group">
-            <label for="cashStore">Store</label>
+            <label>Store</label>
             <select id="cashStore" required>
               <option value="">Select store</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="cashAmount">Amount Submitted</label>
-            <input type="number" id="cashAmount" min="0" step="0.01" placeholder="0" required />
+            <label>Amount Submitted</label>
+            <input type="number" id="cashAmount" min="0" step="0.01" required />
           </div>
 
           <div class="form-group">
-            <label for="cashNote">Note</label>
+            <label>Note</label>
             <textarea id="cashNote" rows="3" placeholder="Optional note"></textarea>
           </div>
 
@@ -51,37 +58,36 @@
         <div class="section-row">
           <h3>Cash Submission History</h3>
         </div>
-        <div id="cashSubmissionList">Loading...</div>
+
+        <div id="cashSubmissionList">
+          Loading...
+        </div>
       </section>
+
     </main>
 
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
+      <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item">
+
+      <a href="./products.html" class="bottom-nav-item">
         <span>📦</span>
         <small>Products</small>
       </a>
-      <a href="sales.html" class="bottom-nav-item">
+
+      <a href="./sales.html" class="bottom-nav-item">
         <span>🛒</span>
         <small>Sales</small>
       </a>
-      <a href="notifications.html" class="bottom-nav-item">
-        <span>🔔</span>
-        <small>Alerts</small>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
         <span>🚪</span>
         <small>Logout</small>
-      </button>
-    </nav>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/cash-submission.js"></script>
-</body>
-</html>
+      </

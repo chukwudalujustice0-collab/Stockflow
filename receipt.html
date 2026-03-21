@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Receipt</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
+    <!-- TOP BAR -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
@@ -15,21 +21,29 @@
       </div>
     </header>
 
+    <!-- MAIN -->
     <main class="app-content">
-      <section class="modern-card">
-        <div id="receiptBox">Loading receipt...</div>
 
-        <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <section class="modern-card">
+        <div id="receiptContainer">
+          <p>Loading receipt...</p>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
           <button type="button" class="btn-primary" onclick="window.print()">Print Receipt</button>
-          <a href="sales.html" class="btn-outline">Back to Sales</a>
+          <a href="./sales.html" class="btn-outline">Back to Sales</a>
         </div>
       </section>
+
     </main>
+
   </div>
 
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/receipt.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/receipt.js"></script>
 </body>
 </html>

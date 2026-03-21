@@ -2,101 +2,111 @@ async function loadReceipt() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  const receiptBox = document.getElementById("receiptBox");
-  if (!receiptBox) return;
+  const container = document.getElementById("receiptContainer");
 
   const params = new URLSearchParams(window.location.search);
-  const saleId = params.get("sale_id");
-  const cashReceived = Number(params.get("cash_received") || 0);
-  const change = Number(params.get("change") || 0);
+  const saleId = params.get("sale");
 
   if (!saleId) {
-    receiptBox.innerHTML = "<p>Receipt not found. Missing sale ID.</p>";
+    container.innerHTML = "<p>No receipt found.</p>";
     return;
   }
 
+  // ======================
+  // LOAD SALE
+  // ======================
   const { data: sale, error: saleError } = await supabaseClient
     .from("sales")
     .select("*")
     .eq("id", saleId)
-    .maybeSingle();
+    .single();
 
   if (saleError || !sale) {
-    console.error("RECEIPT SALE ERROR:", saleError);
-    receiptBox.innerHTML = "<p>Unable to load receipt sale.</p>";
+    console.error(saleError);
+    container.innerHTML = "<p>Unable to load sale.</p>";
     return;
   }
 
+  // ======================
+  // LOAD ITEMS
+  // ======================
   const { data: items, error: itemsError } = await supabaseClient
     .from("sale_items")
     .select("*")
-    .eq("sale_id", sale.id);
+    .eq("sale_id", saleId);
 
   if (itemsError) {
-    console.error("RECEIPT ITEMS ERROR:", itemsError);
-    receiptBox.innerHTML = "<p>Unable to load receipt items.</p>";
+    console.error(itemsError);
+    container.innerHTML = "<p>Unable to load items.</p>";
     return;
   }
 
-  const { data: company } = await supabaseClient
-    .from("companies")
-    .select("name")
-    .eq("id", sale.company_id)
-    .maybeSingle();
-
+  // ======================
+  // LOAD STORE
+  // ======================
   const { data: store } = await supabaseClient
     .from("stores")
     .select("name")
     .eq("id", sale.store_id)
     .maybeSingle();
 
-  const { data: staff } = await supabaseClient
-    .from("profiles")
-    .select("full_name,email")
-    .eq("id", sale.sold_by)
-    .maybeSingle();
+  // ======================
+  // LOAD CUSTOMER
+  // ======================
+  let customerName = "Walk-in Customer";
 
-  let productMap = {};
-  const productIds = (items || []).map((item) => item.product_id).filter(Boolean);
+  if (sale.customer_id) {
+    const { data: customer } = await supabaseClient
+      .from("customers")
+      .select("name")
+      .eq("id", sale.customer_id)
+      .maybeSingle();
 
-  if (productIds.length) {
-    const { data: products } = await supabaseClient
-      .from("products")
-      .select("id,name")
-      .in("id", productIds);
-
-    (products || []).forEach((product) => {
-      productMap[product.id] = product.name;
-    });
+    if (customer) {
+      customerName = customer.name;
+    }
   }
 
-  receiptBox.innerHTML = `
-    <div style="text-align:center; margin-bottom:18px;">
-      <h2 style="margin:0;">${company?.name || "StockFlow"}</h2>
-      <p style="margin:6px 0 0;">${store?.name || ""}</p>
-    </div>
+  // ======================
+  // RENDER RECEIPT
+  // ======================
+  const itemsHtml = (items || []).map(item => `
+    <tr>
+      <td>${item.quantity}</td>
+      <td>₦${Number(item.unit_price).toLocaleString()}</td>
+      <td>₦${Number(item.subtotal).toLocaleString()}</td>
+    </tr>
+  `).join("");
 
-    <div class="modern-list-card">
-      <p><strong>Receipt ID:</strong> ${sale.id}</p>
+  container.innerHTML = `
+    <div class="receipt-box">
+      <h2 style="text-align:center;">StockFlow Receipt</h2>
+
+      <p><strong>Store:</strong> ${store?.name || "-"}</p>
+      <p><strong>Customer:</strong> ${customerName}</p>
       <p><strong>Date:</strong> ${new Date(sale.created_at).toLocaleString()}</p>
-      <p><strong>Staff:</strong> ${staff?.full_name || staff?.email || "-"}</p>
-      <p><strong>Payment:</strong> ${sale.payment_method || "-"}</p>
-    </div>
 
-    <div style="margin-top:14px;">
-      ${(items || []).map((item) => `
-        <div class="modern-list-card">
-          <strong>${productMap[item.product_id] || "Product"}</strong>
-          <p>${item.quantity} × ₦${Number(item.unit_price || 0).toLocaleString()}</p>
-          <small>Subtotal: ₦${Number(item.subtotal || 0).toLocaleString()}</small>
-        </div>
-      `).join("")}
-    </div>
+      <table style="width:100%; margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
 
-    <div class="modern-card" style="margin-top:14px;">
-      <p><strong>Total:</strong> ₦${Number(sale.total_amount || 0).toLocaleString()}</p>
-      <p><strong>Cash Received:</strong> ₦${cashReceived.toLocaleString()}</p>
-      <p><strong>Change:</strong> ₦${change.toLocaleString()}</p>
+      <hr />
+
+      <h3>Total: ₦${Number(sale.total_amount).toLocaleString()}</h3>
+      <p><strong>Payment:</strong> ${sale.payment_method}</p>
+
+      <p style="text-align:center; margin-top:20px;">
+        Thank you for your business
+      </p>
     </div>
   `;
 }

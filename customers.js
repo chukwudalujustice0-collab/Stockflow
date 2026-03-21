@@ -1,15 +1,19 @@
-
-
 async function loadCustomersPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  fillHeader(auth.profile);
-  await loadCustomers(auth.profile);
+  const { profile } = auth;
+  fillHeader(profile);
+
+  await loadCustomers(profile);
 }
 
-async function loadCustomers(profile) {
+loadCustomersPage();
 
+// ======================
+// LOAD CUSTOMERS
+// ======================
+async function loadCustomers(profile) {
   const list = document.getElementById("customerList");
 
   const { data, error } = await supabaseClient
@@ -19,12 +23,13 @@ async function loadCustomers(profile) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    list.innerHTML = error.message;
+    console.error(error);
+    list.innerHTML = "<p>Error loading customers</p>";
     return;
   }
 
   if (!data.length) {
-    list.innerHTML = "No customers yet.";
+    list.innerHTML = "<p>No customers yet</p>";
     return;
   }
 
@@ -33,10 +38,17 @@ async function loadCustomers(profile) {
       <strong>${c.name}</strong>
       <p>${c.phone || ""}</p>
       <small>${c.email || ""}</small>
+      <br>
+      <a href="./customer-statement.html?id=${c.id}" class="btn-outline inline-btn">
+        View Statement
+      </a>
     </div>
   `).join("");
 }
 
+// ======================
+// ADD CUSTOMER
+// ======================
 document.getElementById("customerForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -47,25 +59,30 @@ document.getElementById("customerForm")?.addEventListener("submit", async (e) =>
   const email = document.getElementById("customerEmail").value;
   const address = document.getElementById("customerAddress").value;
 
+  if (!name) {
+    msg.textContent = "Enter name";
+    return;
+  }
+
   msg.textContent = "Saving...";
 
-  const { error } = await supabaseClient
-    .from("customers")
-    .insert([{
-      company_id: currentProfile.company_id,
-      name, phone, email, address,
-      created_by: currentUser.id
-    }]);
+  const { error } = await supabaseClient.from("customers").insert([{
+    company_id: currentProfile.company_id,
+    name,
+    phone,
+    email,
+    address,
+    created_by: currentUser.id
+  }]);
 
   if (error) {
+    console.error(error);
     msg.textContent = error.message;
     return;
   }
 
-  msg.textContent = "Saved!";
-  e.target.reset();
+  msg.textContent = "Customer saved";
+  document.getElementById("customerForm").reset();
 
-  loadCustomers(currentProfile);
+  await loadCustomers(currentProfile);
 });
-
-loadCustomersPage();

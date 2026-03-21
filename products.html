@@ -2,76 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Products</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="mobile-app-shell">
+
+    <!-- TOP BAR -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Products</h1>
       </div>
+
       <div class="topbar-user">
         <strong id="welcomeName">Loading...</strong>
         <p id="welcomeRole" class="small-text"></p>
       </div>
     </header>
 
+    <!-- MAIN -->
     <main class="app-content">
+
+      <!-- ADD PRODUCT -->
       <section class="modern-card">
         <h3>Add Product</h3>
 
         <form id="productForm">
           <div class="form-group">
-            <label for="productStore">Store</label>
+            <label>Store</label>
             <select id="productStore" required>
               <option value="">Select store</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="productName">Product Name</label>
+            <label>Product Name</label>
             <input type="text" id="productName" required />
           </div>
 
           <div class="form-group">
-            <label for="productCategory">Category</label>
+            <label>Category</label>
             <input type="text" id="productCategory" />
           </div>
 
           <div class="form-group">
-            <label for="productSku">SKU</label>
+            <label>SKU</label>
             <input type="text" id="productSku" />
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="costPrice">Cost Price</label>
-              <input type="number" id="costPrice" min="0" step="0.01" />
+              <label>Cost Price</label>
+              <input type="number" id="costPrice" />
             </div>
 
             <div class="form-group">
-              <label for="sellingPrice">Selling Price</label>
-              <input type="number" id="sellingPrice" min="0" step="0.01" />
+              <label>Selling Price</label>
+              <input type="number" id="sellingPrice" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="productQty">Quantity</label>
-              <input type="number" id="productQty" min="0" />
+              <label>Quantity</label>
+              <input type="number" id="productQty" />
             </div>
 
             <div class="form-group">
-              <label for="reorderLevel">Reorder Level</label>
-              <input type="number" id="reorderLevel" min="0" />
+              <label>Reorder Level</label>
+              <input type="number" id="reorderLevel" />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="productImage">Product Image</label>
+            <label>Product Image</label>
             <input type="file" id="productImage" accept="image/*" />
           </div>
 
@@ -81,36 +91,57 @@
         <p id="productMessage" class="message"></p>
       </section>
 
+      <!-- PRODUCT LIST -->
       <section class="modern-card">
         <div class="section-row">
           <h3>Products</h3>
         </div>
-        <div id="productsList" class="products-grid">Loading...</div>
+
+        <div id="productsList" class="products-grid">
+          Loading...
+        </div>
       </section>
+
     </main>
 
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="bottom-nav-item">
-        <span>🏠</span><small>Home</small>
+
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
       </a>
-      <a href="products.html" class="bottom-nav-item active">
-        <span>📦</span><small>Products</small>
+
+      <a href="./products.html" class="bottom-nav-item active">
+        <span>📦</span>
+        <small>Products</small>
       </a>
-      <a href="sales.html" class="bottom-nav-item">
-        <span>🛒</span><small>Sales</small>
+
+      <a href="./sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
       </a>
-      <a href="pricing.html" class="bottom-nav-item">
-        <span>💳</span><small>Pricing</small>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
       </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span><small>Logout</small>
+        <span>🚪</span>
+        <small>Logout</small>
       </button>
+
     </nav>
+
   </div>
 
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/products.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/shared.js"></script>
+  <script src="./js/products.js"></script>
+
 </body>
 </html>

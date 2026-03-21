@@ -1,23 +1,20 @@
-const PLAN_LIMITS = {
-  free: { stores: 1, staff: 2 },
-  starter: { stores: 3, staff: 5 },
-  pro: { stores: 999, staff: 999 },
-  enterprise: { stores: 9999, staff: 9999 }
-};
-
 async function loadPricingPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  const { profile } = auth;
-  fillHeader(profile);
+  fillHeader(auth.profile);
 
   await loadCurrentPlan();
 }
 
+loadPricingPage();
+
+// ======================
+// LOAD CURRENT PLAN
+// ======================
 async function loadCurrentPlan() {
-  const currentPlanText = document.getElementById("currentPlanText");
-  if (!currentPlanText) return;
+  const planNameEl = document.getElementById("currentPlanName");
+  const planMetaEl = document.getElementById("currentPlanMeta");
 
   const { data, error } = await supabaseClient
     .from("subscriptions")
@@ -27,68 +24,50 @@ async function loadCurrentPlan() {
     .limit(1)
     .maybeSingle();
 
-  console.log("CURRENT PLAN:", data, error);
-
-  if (error || !data) {
-    currentPlanText.textContent = "Free plan";
+  if (error) {
+    console.error("PLAN LOAD ERROR:", error);
     return;
   }
 
-  currentPlanText.textContent = `${data.plan || "free"} plan • ${data.status || "inactive"}`;
+  if (!data) {
+    planNameEl.textContent = "Current Plan: Free";
+    planMetaEl.textContent = "No active subscription yet";
+    return;
+  }
+
+  planNameEl.textContent = `Current Plan: ${data.plan}`;
+  planMetaEl.textContent = `Stores: ${data.max_stores} • Staff: ${data.max_staff}`;
 }
 
-async function activateMockPlan(plan, amount) {
+// ======================
+// ACTIVATE PLAN
+// ======================
+async function activatePlan(plan, price, maxStores, maxStaff) {
   const msg = document.getElementById("pricingMessage");
 
-  if (!currentUser || !currentProfile) {
-    msg.textContent = "User not loaded.";
-    return;
-  }
+  msg.textContent = "Activating plan...";
 
-  if (!currentProfile.company_id) {
-    msg.textContent = "Create a company first before upgrading.";
-    return;
-  }
-
-  const limits = PLAN_LIMITS[plan];
-  if (!limits) {
-    msg.textContent = "Invalid plan selected.";
-    return;
-  }
-
-  msg.textContent = "Activating subscription...";
-
-  const mockReference = `MOCK-${plan.toUpperCase()}-${Date.now()}`;
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  // ⚠️ MOCK PAYMENT (for now)
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   const { error } = await supabaseClient
     .from("subscriptions")
-    .insert([
-      {
-        user_id: currentUser.id,
-        company_id: currentProfile.company_id,
-        plan,
-        status: "active",
-        amount,
-        paystack_ref: mockReference,
-        max_stores: limits.stores,
-        max_staff: limits.staff,
-        expires_at: expiresAt
-      }
-    ]);
+    .insert([{
+      user_id: currentUser.id,
+      plan,
+      price,
+      max_stores: maxStores,
+      max_staff: maxStaff,
+      status: "active"
+    }]);
 
   if (error) {
-    console.error("SUBSCRIPTION ERROR:", error);
-    msg.textContent = error.message || "Unable to activate plan.";
+    console.error("PLAN ERROR:", error);
+    msg.textContent = error.message;
     return;
   }
 
-  msg.classList.add("ok-message");
-  msg.textContent = `${plan} plan activated successfully. Redirecting...`;
+  msg.textContent = "Plan activated successfully";
 
-  setTimeout(() => {
-    window.location.href = "dashboard.html";
-  }, 1000);
+  await loadCurrentPlan();
 }
-
-loadPricingPage();

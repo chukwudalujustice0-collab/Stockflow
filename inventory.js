@@ -1,7 +1,3 @@
-
-
-let inventoryProducts = [];
-
 async function loadInventoryPage() {
   const auth = await requireAuth();
   if (!auth) return;
@@ -9,231 +5,199 @@ async function loadInventoryPage() {
   const { profile } = auth;
   fillHeader(profile);
 
-  if (!profile.company_id) {
-    alert("Create a company first.");
-    window.location.href = "company.html";
-    return;
-  }
-
-  await loadInventoryStores(profile);
-  await loadInventoryStats(profile);
-  await loadStockMovements(profile);
+  await loadStores(profile);
+  await loadLowStock(profile);
+  await loadMovements(profile);
 }
 
-async function getInventoryStoreIds(profile) {
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const { data } = await supabaseClient
-      .from("stores")
-      .select("id")
-      .eq("company_id", profile.company_id);
+loadInventoryPage();
 
-    return (data || []).map((row) => row.id);
-  }
-
-  const { data } = await supabaseClient
-    .from("staff_store_access")
-    .select("store_id")
-    .eq("staff_id", currentUser.id);
-
-  return (data || []).map((row) => row.store_id);
-}
-
-async function loadInventoryStores(profile) {
+// ======================
+// LOAD STORES
+// ======================
+async function loadStores(profile) {
   const select = document.getElementById("inventoryStore");
   if (!select) return;
 
+  let stores = [];
+
+  if (["director", "assistant_director"].includes(profile.role)) {
+    const { data } = await supabaseClient
+      .from("stores")
+      .select("id, name")
+      .eq("company_id", profile.company_id);
+
+    stores = data || [];
+  } else {
+    const { data: access } = await supabaseClient
+      .from("staff_store_access")
+      .select("store_id")
+      .eq("staff_id", currentUser.id);
+
+    const ids = (access || []).map(i => i.store_id);
+
+    if (ids.length) {
+      const { data } = await supabaseClient
+        .from("stores")
+        .select("id, name")
+        .in("id", ids);
+
+      stores = data || [];
+    }
+  }
+
   select.innerHTML = `<option value="">Select store</option>`;
 
-  const storeIds = await getInventoryStoreIds(profile);
-
-  if (!storeIds.length) return;
-
-  const { data } = await supabaseClient
-    .from("stores")
-    .select("id,name")
-    .in("id", storeIds);
-
-  (data || []).forEach((store) => {
-    const option = document.createElement("option");
-    option.value = store.id;
-    option.textContent = store.name;
-    select.appendChild(option);
+  stores.forEach(store => {
+    const opt = document.createElement("option");
+    opt.value = store.id;
+    opt.textContent = store.name;
+    select.appendChild(opt);
   });
-
-  if ((data || []).length === 1) {
-    select.value = data[0].id;
-    await loadProductsForInventory(data[0].id);
-  }
 }
 
-async function loadProductsForInventory(storeId) {
+// ======================
+// LOAD PRODUCTS BY STORE
+// ======================
+document.getElementById("inventoryStore")?.addEventListener("change", async (e) => {
+  const storeId = e.target.value;
+
   const productSelect = document.getElementById("inventoryProduct");
   if (!productSelect) return;
 
   productSelect.innerHTML = `<option value="">Select product</option>`;
 
-  const { data, error } = await supabaseClient
+  if (!storeId) return;
+
+  const { data } = await supabaseClient
     .from("products")
-    .select("*")
-    .eq("store_id", storeId)
-    .order("name", { ascending: true });
+    .select("id, name")
+    .eq("store_id", storeId);
 
-  console.log("INVENTORY PRODUCTS:", data, error);
-
-  inventoryProducts = data || [];
-
-  inventoryProducts.forEach((product) => {
-    const option = document.createElement("option");
-    option.value = product.id;
-    option.textContent = `${product.name} (Qty: ${product.quantity})`;
-    productSelect.appendChild(option);
+  (data || []).forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.name;
+    productSelect.appendChild(opt);
   });
-}
-
-async function loadInventoryStats(profile) {
-  const lowStockCountEl = document.getElementById("lowStockCount");
-  const outOfStockCountEl = document.getElementById("outOfStockCount");
-  const lowStockList = document.getElementById("lowStockList");
-
-  const storeIds = await getInventoryStoreIds(profile);
-  if (!storeIds.length) {
-    lowStockList.innerHTML = "<p>No stores assigned.</p>";
-    return;
-  }
-
-  const { data, error } = await supabaseClient
-    .from("products")
-    .select("*")
-    .in("store_id", storeIds)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    lowStockList.innerHTML = `<p>${error.message}</p>`;
-    return;
-  }
-
-  const products = data || [];
-  const lowStock = products.filter((p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0));
-  const outOfStock = products.filter((p) => Number(p.quantity || 0) <= 0);
-
-  if (lowStockCountEl) lowStockCountEl.textContent = lowStock.length.toLocaleString();
-  if (outOfStockCountEl) outOfStockCountEl.textContent = outOfStock.length.toLocaleString();
-
-  if (!lowStock.length) {
-    lowStockList.innerHTML = "<p>No low stock items.</p>";
-    return;
-  }
-
-  lowStockList.innerHTML = lowStock.map((product) => `
-    <div class="modern-list-card">
-      <strong>${product.name}</strong>
-      <p>Qty: ${product.quantity}</p>
-      <small>Reorder level: ${product.reorder_level}</small>
-    </div>
-  `).join("");
-}
-
-async function loadStockMovements(profile) {
-  const list = document.getElementById("stockMovementList");
-  if (!list) return;
-
-  const storeIds = await getInventoryStoreIds(profile);
-  if (!storeIds.length) {
-    list.innerHTML = "<p>No stock movements yet.</p>";
-    return;
-  }
-
-  const { data, error } = await supabaseClient
-    .from("stock_movements")
-    .select("*")
-    .in("store_id", storeIds)
-    .order("created_at", { ascending: false })
-    .limit(20);
-
-  if (error) {
-    list.innerHTML = `<p>${error.message}</p>`;
-    return;
-  }
-
-  if (!data || !data.length) {
-    list.innerHTML = "<p>No stock movements yet.</p>";
-    return;
-  }
-
-  list.innerHTML = data.map((row) => `
-    <div class="modern-list-card">
-      <strong>${row.movement_type}</strong>
-      <p>Qty: ${row.quantity}</p>
-      <small>${row.note || ""}</small><br>
-      <small>${new Date(row.created_at).toLocaleString()}</small>
-    </div>
-  `).join("");
-}
-
-document.getElementById("inventoryStore")?.addEventListener("change", async (e) => {
-  const storeId = e.target.value;
-  await loadProductsForInventory(storeId);
 });
 
+// ======================
+// RESTOCK
+// ======================
 document.getElementById("restockForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const msg = document.getElementById("inventoryMessage");
+
   const storeId = document.getElementById("inventoryStore").value;
   const productId = document.getElementById("inventoryProduct").value;
-  const qty = parseInt(document.getElementById("restockQty").value || "0", 10);
-  const note = document.getElementById("restockNote").value.trim();
+  const qty = Number(document.getElementById("restockQty").value);
+  const note = document.getElementById("restockNote").value;
 
   if (!storeId || !productId || qty <= 0) {
-    msg.textContent = "Select store, product and valid quantity.";
+    msg.textContent = "Fill all required fields";
     return;
   }
 
-  const product = inventoryProducts.find((p) => p.id === productId);
-  if (!product) {
-    msg.textContent = "Product not found.";
-    return;
-  }
+  msg.textContent = "Updating stock...";
 
-  msg.textContent = "Restocking...";
+  // GET CURRENT QTY
+  const { data: product } = await supabaseClient
+    .from("products")
+    .select("quantity")
+    .eq("id", productId)
+    .single();
 
-  const newQty = Number(product.quantity || 0) + qty;
+  const newQty = (product?.quantity || 0) + qty;
 
-  const { error: updateError } = await supabaseClient
+  // UPDATE PRODUCT
+  const { error } = await supabaseClient
     .from("products")
     .update({ quantity: newQty })
     .eq("id", productId);
 
-  if (updateError) {
-    msg.textContent = updateError.message || "Unable to update product stock.";
+  if (error) {
+    console.error(error);
+    msg.textContent = error.message;
     return;
   }
 
-  const { error: movementError } = await supabaseClient
-    .from("stock_movements")
-    .insert([
-      {
-        company_id: currentProfile.company_id,
-        store_id: storeId,
-        product_id: productId,
-        movement_type: "restock",
-        quantity: qty,
-        note,
-        created_by: currentUser.id
-      }
-    ]);
+  // RECORD MOVEMENT
+  await supabaseClient.from("stock_movements").insert([{
+    company_id: currentProfile.company_id,
+    store_id: storeId,
+    product_id: productId,
+    movement_type: "restock",
+    quantity: qty,
+    note,
+    created_by: currentUser.id
+  }]);
 
-  if (movementError) {
-    msg.textContent = movementError.message || "Unable to save stock movement.";
-    return;
-  }
+  msg.textContent = "Stock updated successfully";
 
-  msg.textContent = "Product restocked successfully.";
   document.getElementById("restockForm").reset();
 
-  await loadInventoryStores(currentProfile);
-  await loadInventoryStats(currentProfile);
-  await loadStockMovements(currentProfile);
+  await loadLowStock(currentProfile);
+  await loadMovements(currentProfile);
+});
+
+// ======================
+// LOW STOCK
+// ======================
+async function loadLowStock(profile) {
+  const list = document.getElementById("lowStockList");
+
+  const { data } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("company_id", profile.company_id);
+
+  const low = (data || []).filter(p =>
+    p.quantity <= (p.reorder_level || 0)
+  );
+
+  document.getElementById("lowStockCount").textContent = low.length;
+  document.getElementById("outOfStockCount").textContent =
+    low.filter(p => p.quantity === 0).length;
+
+  if (!low.length) {
+    list.innerHTML = "<p>No low stock products</p>";
+    return;
+  }
+
+  list.innerHTML = low.map(p => `
+    <div class="modern-list-card">
+      <strong>${p.name}</strong>
+      <p>Qty: ${p.quantity}</p>
+      <small>Reorder level: ${p.reorder_level}</small>
+    </div>
+  `).join("");
 }
 
-loadInventoryPage();
+// ======================
+// MOVEMENTS
+// ======================
+async function loadMovements(profile) {
+  const list = document.getElementById("stockMovementList");
+
+  const { data } = await supabaseClient
+    .from("stock_movements")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (!data || !data.length) {
+    list.innerHTML = "<p>No movements yet</p>";
+    return;
+  }
+
+  list.innerHTML = data.map(m => `
+    <div class="modern-list-card">
+      <strong>${m.movement_type}</strong>
+      <p>Qty: ${m.quantity}</p>
+      <small>${new Date(m.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
+}
