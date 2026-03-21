@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Company Setup</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>StockFlow</h2>
+      <p class="small-text">Built by Ceetify</p>
+
+      <ul class="menu" id="sidebarMenu">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li data-role="director,assistant_director" data-page="company">
+          <a href="company.html">Company</a>
+        </li>
+        <li data-role="director,assistant_director,store_manager">
+          <a href="stores.html">Stores</a>
+        </li>
+        <li data-role="director,assistant_director">
+          <a href="staff.html">Staff</a>
+        </li>
+      </ul>
+
+      <button id="logoutBtn" class="btn-danger">Logout</button>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <h1>Company Setup</h1>
+        <div>
+          <strong id="welcomeName">Loading...</strong>
+          <p id="welcomeRole" class="small-text"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Create Company</h3>
+        <form id="companyForm">
+          <div class="form-group">
+            <label for="companyNameInput">Company Name</label>
+            <input
+              type="text"
+              id="companyNameInput"
+              placeholder="Enter company name"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-primary">Save Company</button>
+        </form>
+
+        <p id="companyMessage" class="message"></p>
+      </div>
+
+      <div class="card">
+        <h3>Current Company</h3>
+        <div id="currentCompanyBox">Loading...</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/company.js"></script>
+</body>
+</html>

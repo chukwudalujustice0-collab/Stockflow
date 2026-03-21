@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Receipt</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Receipt</h1>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="modern-card">
+        <div id="receiptBox">Loading receipt...</div>
+
+        <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn-primary" onclick="window.print()">Print Receipt</button>
+          <a href="sales.html" class="btn-outline">Back to Sales</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/receipt.js"></script>
+</body>
+</html>

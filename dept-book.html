@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Debt Book</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body class="app-body">
+<div class="mobile-app-shell">
+
+<header class="app-topbar">
+  <h1 class="page-title">Debt Book</h1>
+</header>
+
+<main class="app-content">
+
+<section class="modern-card">
+  <h3>Record Debt</h3>
+
+  <form id="debtForm">
+    <select id="debtCustomer"></select>
+    <input type="number" id="debtAmount" placeholder="Amount" required />
+    <input type="text" id="debtNote" placeholder="Note" />
+    <button class="btn-primary">Save</button>
+  </form>
+
+  <p id="debtMsg"></p>
+</section>
+
+<section class="modern-card">
+  <h3>Debt List</h3>
+  <div id="debtList">Loading...</div>
+</section>
+
+</main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/shared.js"></script>
+<script src="js/debt-book.js"></script>
+</body>
+</html>

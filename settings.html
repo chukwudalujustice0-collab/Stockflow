@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Settings</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Settings</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="modern-card">
+        <h3>Profile</h3>
+        <p><strong>Name:</strong> <span id="settingsFullName">-</span></p>
+        <p><strong>Email:</strong> <span id="settingsEmail">-</span></p>
+        <p><strong>Role:</strong> <span id="settingsRole">-</span></p>
+      </section>
+
+      <section class="modern-card">
+        <h3>Company</h3>
+        <p><strong>Company Name:</strong> <span id="settingsCompanyName">-</span></p>
+        <p><strong>Company ID:</strong> <span id="settingsCompanyId">-</span></p>
+      </section>
+
+      <section class="modern-card">
+        <h3>Subscription</h3>
+        <p><strong>Plan:</strong> <span id="settingsPlan">Free</span></p>
+        <p><strong>Status:</strong> <span id="settingsPlanStatus">Inactive</span></p>
+        <p><strong>Expires:</strong> <span id="settingsPlanExpiry">-</span></p>
+
+        <div style="margin-top:12px;">
+          <a href="pricing.html" class="btn-primary">Upgrade Plan</a>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <h3>Quick Links</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="company.html" class="btn-outline">Company</a>
+          <a href="stores.html" class="btn-outline">Stores</a>
+          <a href="staff.html" class="btn-outline">Staff</a>
+          <a href="reports.html" class="btn-outline">Reports</a>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <h3>Session</h3>
+        <button id="logoutBtn" type="button" class="btn-danger">Logout</button>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item">
+        <span>🏠</span><small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span><small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span><small>Sales</small>
+      </a>
+      <a href="settings.html" class="bottom-nav-item active">
+        <span>⚙️</span><small>Settings</small>
+      </a>
+      <button id="logoutBtnNav" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span><small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

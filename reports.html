@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Reports</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Reports</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="modern-card">
+        <h3>Filter Reports</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input type="date" id="startDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input type="date" id="endDate" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="btn-primary" onclick="applyFilter()">Apply</button>
+          <button type="button" class="btn-outline" onclick="clearFilter()">Clear</button>
+          <button type="button" class="btn-outline" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </section>
+
+      <section class="stats-grid-modern">
+        <div class="modern-stat-card">
+          <p>Total Products</p>
+          <h3 id="reportTotalProducts">0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Total Sales</p>
+          <h3 id="reportTotalSales">₦0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Cash Submitted</p>
+          <h3 id="reportCashSubmitted">₦0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Low Stock Items</p>
+          <h3 id="reportLowStockCount">0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Difference</p>
+          <h3 id="reportDifference">₦0</h3>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Recent Sales</h3>
+        </div>
+        <div id="reportRecentSales">Loading...</div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Low Stock Products</h3>
+        </div>
+        <div id="reportLowStockList">Loading...</div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Recent Cash Submissions</h3>
+        </div>
+        <div id="reportCashList">Loading...</div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span>
+        <small>Sales</small>
+      </a>
+      <a href="reports.html" class="bottom-nav-item active">
+        <span>📊</span>
+        <small>Reports</small>
+      </a>
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span>
+        <small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Inventory Intelligence</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Inventory Intelligence</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="stats-grid-modern">
+        <div class="modern-stat-card">
+          <p>Low Stock Items</p>
+          <h3 id="lowStockCount">0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Out of Stock</p>
+          <h3 id="outOfStockCount">0</h3>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <h3>Restock Product</h3>
+
+        <form id="restockForm">
+          <div class="form-group">
+            <label for="inventoryStore">Store</label>
+            <select id="inventoryStore" required>
+              <option value="">Select store</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inventoryProduct">Product</label>
+            <select id="inventoryProduct" required>
+              <option value="">Select product</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="restockQty">Quantity Added</label>
+            <input type="number" id="restockQty" min="1" required />
+          </div>
+
+          <div class="form-group">
+            <label for="restockNote">Note</label>
+            <input type="text" id="restockNote" placeholder="Optional note" />
+          </div>
+
+          <button type="submit" class="btn-primary">Restock</button>
+        </form>
+
+        <p id="inventoryMessage" class="message"></p>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Low Stock Products</h3>
+        </div>
+        <div id="lowStockList">Loading...</div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Recent Stock Movements</h3>
+        </div>
+        <div id="stockMovementList">Loading...</div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item">
+        <span>🏠</span><small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span><small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span><small>Sales</small>
+      </a>
+      <a href="inventory.html" class="bottom-nav-item active">
+        <span>📊</span><small>Inventory</small>
+      </a>
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span><small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/inventory.js"></script>
+</body>
+</html>

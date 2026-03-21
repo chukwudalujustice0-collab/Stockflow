@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Staff Invitations</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Staff Invitations</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="modern-card">
+        <h3>Invite Staff</h3>
+
+        <form id="inviteStaffForm">
+          <div class="form-group">
+            <label for="inviteEmail">Staff Email</label>
+            <input type="email" id="inviteEmail" placeholder="Enter staff email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="inviteRole">Role</label>
+            <select id="inviteRole" required>
+              <option value="">Select role</option>
+              <option value="assistant_director">Assistant Director</option>
+              <option value="store_manager">Store Manager</option>
+              <option value="sales_rep">Sales Rep</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inviteStore">Store</label>
+            <select id="inviteStore">
+              <option value="">Select store</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">Send Invitation</button>
+        </form>
+
+        <p id="inviteMessage" class="message"></p>
+      </section>
+
+      <section class="modern-card">
+        <h3>Sent Invitations</h3>
+        <div id="invitationList">Loading...</div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item">
+        <span>🏠</span><small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span><small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span><small>Sales</small>
+      </a>
+      <a href="notifications.html" class="bottom-nav-item">
+        <span>🔔</span><small>Alerts</small>
+      </a>
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span><small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/staff.js"></script>
+</body>
+</html>

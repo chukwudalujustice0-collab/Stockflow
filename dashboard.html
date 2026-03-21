@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow | Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Dashboard</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="hero-summary-card">
+        <div class="hero-summary-text">
+          <p class="eyebrow-text">Business Overview</p>
+          <h2 id="companyName">No company yet</h2>
+          <p id="dashboardRoleText">Role: -</p>
+        </div>
+        <div class="hero-summary-stats">
+          <div class="mini-metric">
+            <span>Stores</span>
+            <strong id="storeCount">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="invitationNotice" class="modern-card" style="display:none;"></section>
+      <section id="setupNotice" class="modern-card" style="display:none;"></section>
+
+      <section class="quick-actions-wrap">
+        <div class="section-row">
+          <h3>Quick Actions</h3>
+        </div>
+
+        <div class="quick-actions-grid">
+          <a href="sales.html" class="quick-action-card" id="quickSalesCard">
+            <span class="quick-action-icon">🛒</span>
+            <span class="quick-action-title">Record Sale</span>
+            <span class="quick-action-sub">Checkout and receipt</span>
+          </a>
+
+          <a href="products.html" class="quick-action-card" id="quickProductsCard">
+            <span class="quick-action-icon">📦</span>
+            <span class="quick-action-title">Products</span>
+            <span class="quick-action-sub">Manage stock items</span>
+          </a>
+
+          <a href="stores.html" class="quick-action-card" id="quickStoresCard">
+            <span class="quick-action-icon">🏬</span>
+            <span class="quick-action-title">Stores</span>
+            <span class="quick-action-sub">Manage locations</span>
+          </a>
+
+          <a href="staff.html" class="quick-action-card" id="quickStaffCard">
+            <span class="quick-action-icon">👥</span>
+            <span class="quick-action-title">Staff</span>
+            <span class="quick-action-sub">Invites and access</span>
+          </a>
+
+          <a href="notifications.html" class="quick-action-card" id="quickNotificationsCard">
+            <span class="quick-action-icon">🔔</span>
+            <span class="quick-action-title">Notifications</span>
+            <span class="quick-action-sub">View alerts and updates</span>
+          </a>
+
+          <a href="cash-submission.html" class="quick-action-card" id="quickCashCard">
+            <span class="quick-action-icon">💵</span>
+            <span class="quick-action-title">Cash Submit</span>
+            <span class="quick-action-sub">Record submitted cash</span>
+          </a>
+
+          <a href="reports.html" class="quick-action-card" id="quickReportsCard">
+            <span class="quick-action-icon">📊</span>
+            <span class="quick-action-title">Reports</span>
+            <span class="quick-action-sub">Sales and stock summary</span>
+          </a>
+
+          <a href="pricing.html" class="quick-action-card" id="quickPricingCard">
+            <span class="quick-action-icon">💳</span>
+            <span class="quick-action-title">Upgrade</span>
+            <span class="quick-action-sub">Plans and subscription</span>
+          </a>
+
+          <a href="settings.html" class="quick-action-card" id="quickSettingsCard">
+            <span class="quick-action-icon">⚙️</span>
+            <span class="quick-action-title">Settings</span>
+            <span class="quick-action-sub">Profile and company info</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="stats-grid-modern">
+        <div class="modern-stat-card">
+          <p>Total Accessible Stores</p>
+          <h3 id="statStoreCount">0</h3>
+        </div>
+
+        <div class="modern-stat-card">
+          <p>Current Role</p>
+          <h3 id="roleName">-</h3>
+        </div>
+      </section>
+
+      <section class="modern-card">
+        <div class="section-row">
+          <h3>Assigned Stores</h3>
+        </div>
+        <div id="storeList">Loading stores...</div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item active">
+        <span>🏠</span><small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span><small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span><small>Sales</small>
+      </a>
+      <a href="settings.html" class="bottom-nav-item">
+        <span>⚙️</span><small>Settings</small>
+      </a>
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span><small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

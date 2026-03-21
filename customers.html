@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customers</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body class="app-body">
+<div class="mobile-app-shell">
+
+<header class="app-topbar">
+  <h1 class="page-title">Customers</h1>
+</header>
+
+<main class="app-content">
+
+<section class="modern-card">
+  <h3>Add Customer</h3>
+
+  <form id="customerForm">
+    <input type="text" id="customerName" placeholder="Full name" required />
+    <input type="text" id="customerPhone" placeholder="Phone" />
+    <input type="email" id="customerEmail" placeholder="Email" />
+    <input type="text" id="customerAddress" placeholder="Address" />
+
+    <button type="submit" class="btn-primary">Save</button>
+  </form>
+
+  <p id="customerMsg"></p>
+</section>
+
+<section class="modern-card">
+  <h3>Customer List</h3>
+  <div id="customerList">Loading...</div>
+</section>
+
+</main>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html">🏠</a>
+  <a href="customers.html" class="active">👤</a>
+  <a href="debt-book.html">📒</a>
+</nav>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/shared.js"></script>
+<script src="js/customers.js"></script>
+</body>
+</html>

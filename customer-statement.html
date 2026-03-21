@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customer Statement</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body class="app-body">
+<div class="mobile-app-shell">
+
+<header class="app-topbar">
+  <h1 class="page-title">Customer Statement</h1>
+</header>
+
+<main class="app-content">
+
+<section class="modern-card">
+  <label>Select Customer</label>
+  <select id="statementCustomer"></select>
+
+  <button onclick="loadStatement()" class="btn-primary">Load Statement</button>
+</section>
+
+<section class="stats-grid-modern">
+  <div class="modern-stat-card">
+    <p>Total Debt</p>
+    <h3 id="totalDebt">₦0</h3>
+  </div>
+
+  <div class="modern-stat-card">
+    <p>Total Paid</p>
+    <h3 id="totalPaid">₦0</h3>
+  </div>
+
+  <div class="modern-stat-card">
+    <p>Balance</p>
+    <h3 id="totalBalance">₦0</h3>
+  </div>
+</section>
+
+<section class="modern-card">
+  <h3>Transactions</h3>
+  <div id="statementList">Select customer</div>
+</section>
+
+<button onclick="exportStatement()" class="btn-outline">
+  Export CSV
+</button>
+
+</main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/shared.js"></script>
+<script src="js/customer-statement.js"></script>
+
+</body>
+</html>

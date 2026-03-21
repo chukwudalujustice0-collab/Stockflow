@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockFlow | Pricing</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="app-body">
+  <div class="mobile-app-shell">
+    <header class="app-topbar">
+      <div>
+        <p class="eyebrow-text">StockFlow</p>
+        <h1 class="page-title">Pricing & Upgrade</h1>
+      </div>
+      <div class="topbar-user">
+        <strong id="welcomeName">Loading...</strong>
+        <p id="welcomeRole" class="small-text"></p>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <section class="modern-card">
+        <h3>Current Plan</h3>
+        <p id="currentPlanText">Loading...</p>
+      </section>
+
+      <section class="modern-card">
+        <h3>Free Plan</h3>
+        <p>Best for trying StockFlow.</p>
+        <ul>
+          <li>1 Store</li>
+          <li>2 Staff</li>
+          <li>Basic sales and inventory</li>
+        </ul>
+        <h2>₦0</h2>
+        <button type="button" class="btn-outline" onclick="activateMockPlan('free', 0)">Use Free Plan</button>
+      </section>
+
+      <section class="modern-card">
+        <h3>Starter</h3>
+        <p>For growing businesses.</p>
+        <ul>
+          <li>3 Stores</li>
+          <li>5 Staff</li>
+          <li>Reports included</li>
+        </ul>
+        <h2>₦2,000 / month</h2>
+        <button type="button" class="btn-primary" onclick="activateMockPlan('starter', 2000)">Upgrade to Starter</button>
+      </section>
+
+      <section class="modern-card">
+        <h3>Pro</h3>
+        <p>Recommended for active businesses.</p>
+        <ul>
+          <li>Unlimited Stores</li>
+          <li>Unlimited Staff</li>
+          <li>Advanced reporting</li>
+        </ul>
+        <h2>₦5,000 / month</h2>
+        <button type="button" class="btn-primary" onclick="activateMockPlan('pro', 5000)">Upgrade to Pro</button>
+      </section>
+
+      <section class="modern-card">
+        <h3>Enterprise</h3>
+        <p>For larger operations.</p>
+        <ul>
+          <li>Everything unlimited</li>
+          <li>Priority support</li>
+        </ul>
+        <h2>₦10,000 / month</h2>
+        <button type="button" class="btn-primary" onclick="activateMockPlan('enterprise', 10000)">Upgrade to Enterprise</button>
+      </section>
+
+      <section class="modern-card">
+        <p id="pricingMessage" class="message"></p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="bottom-nav-item">
+        <span>🏠</span><small>Home</small>
+      </a>
+      <a href="products.html" class="bottom-nav-item">
+        <span>📦</span><small>Products</small>
+      </a>
+      <a href="sales.html" class="bottom-nav-item">
+        <span>🛒</span><small>Sales</small>
+      </a>
+      <a href="pricing.html" class="bottom-nav-item active">
+        <span>💳</span><small>Pricing</small>
+      </a>
+      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
+        <span>🚪</span><small>Logout</small>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/pricing.js"></script>
+</body>
+</html>

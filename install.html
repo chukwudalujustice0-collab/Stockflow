@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Install StockFlow</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body class="app-body">
+
+<div class="mobile-app-shell">
+
+  <header class="app-topbar">
+    <div>
+      <p class="eyebrow-text">StockFlow</p>
+      <h1 class="page-title">Install App</h1>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <section class="modern-card" style="text-align:center;">
+      <h2>Install StockFlow</h2>
+      <p>Get faster access, offline support and a better experience.</p>
+
+      <button id="installBtn" class="btn-primary" style="margin-top:15px;">
+        Install Now
+      </button>
+
+      <p style="margin-top:15px; font-size:13px; color:#666;">
+        If install doesn't show, use your browser menu → "Add to Home Screen"
+      </p>
+    </section>
+
+    <section class="modern-card">
+      <h3>Why install?</h3>
+      <ul>
+        <li>⚡ Faster loading</li>
+        <li>📱 Works like a mobile app</li>
+        <li>📡 Basic offline access</li>
+        <li>🔔 Notifications (coming next)</li>
+      </ul>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) {
+    alert("Use browser menu → Add to Home Screen");
+    return;
+  }
+
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+</script>
+
+</body>
+</html>

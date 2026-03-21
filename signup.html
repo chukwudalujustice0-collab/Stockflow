@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockFlow | Sign Up</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body class="auth-body">
+
+<div class="auth-container">
+
+  <div class="brand-box">
+    <h1>StockFlow</h1>
+    <p>Built by Ceetify</p>
+  </div>
+
+  <div class="card">
+    <h2>Create Account</h2>
+
+    <form id="signupForm">
+      <input type="text" id="fullName" placeholder="Full name" required/>
+      <input type="tel" id="phone" placeholder="Phone number" required/>
+      <input type="email" id="signupEmail" placeholder="Email" required/>
+      <input type="password" id="signupPassword" placeholder="Password" required/>
+      <input type="password" id="confirmPassword" placeholder="Confirm password" required/>
+
+      <button type="submit" id="signupBtn" class="btn-primary">Sign Up</button>
+    </form>
+
+    <p id="signupMessage" class="message"></p>
+
+    <div class="auth-footer-links">
+      <a href="login.html">Already have an account? Login</a>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/signup.js"></script>
+
+</body>
+</html>
