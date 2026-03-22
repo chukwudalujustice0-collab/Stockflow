@@ -4,15 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Staff</title>
-  <link rel="stylesheet" href="./css/style.css?v=710" />
+  <link rel="manifest" href="./manifest.json?v=900" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css?v=900" />
 </head>
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <header class="app-topbar">
-      <div>
-        <p class="eyebrow-text">StockFlow</p>
-        <h1 class="page-title">Staff</h1>
+    <!-- TOP BAR -->
+    <header class="app-topbar premium-topbar">
+      <div class="topbar-left-group">
+        <div>
+          <p class="eyebrow-text">StockFlow</p>
+          <h1 class="page-title">Staff</h1>
+        </div>
       </div>
 
       <div class="topbar-user">
@@ -24,81 +29,126 @@
     <main class="app-content">
       <div class="dashboard-container">
 
+        <!-- HERO -->
+        <section class="hero-dashboard-card premium-hero-card">
+          <div class="hero-dashboard-text">
+            <p class="hero-eyebrow">Team Management</p>
+            <h2>Manage Your Staff</h2>
+            <p class="hero-subtext">
+              Invite team members, assign roles, and manage your workforce efficiently.
+            </p>
+          </div>
+
+          <div class="hero-dashboard-actions">
+            <a href="./notifications.html" class="hero-main-btn hero-product-btn">View Invitations</a>
+            <a href="./stores.html" class="hero-main-btn hero-sale-btn">Manage Stores</a>
+          </div>
+        </section>
+
+        <!-- INVITE FORM -->
         <section class="section-card">
           <div class="section-head-row">
-            <h3>Invite Staff</h3>
+            <h3>Invite Staff Member</h3>
           </div>
 
           <form id="staffInviteForm">
+
             <div class="form-group">
-              <label for="staffEmail">Email Address</label>
-              <input type="email" id="staffEmail" placeholder="Enter staff email" required />
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="staffEmail"
+                placeholder="Enter staff email"
+                required
+              />
             </div>
 
             <div class="form-group">
-              <label for="staffRole">Role</label>
+              <label>Role</label>
               <select id="staffRole" required>
                 <option value="assistant_director">Assistant Director</option>
                 <option value="store_manager">Store Manager</option>
-                <option value="sales_rep">Sales Rep</option>
+                <option value="sales_rep">Sales Representative</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="staffStore">Assign Store (required for Store Manager / Sales Rep)</label>
+              <label>Assign Store</label>
               <select id="staffStore">
                 <option value="">Select store</option>
               </select>
+              <small class="small-text">
+                Required for Store Manager and Sales roles
+              </small>
             </div>
 
-            <button type="submit" class="btn-primary full-btn">Send Invitation</button>
+            <button type="submit" class="btn-primary full-btn">
+              Send Invitation
+            </button>
           </form>
 
           <p id="staffMessage" class="message"></p>
         </section>
 
+        <!-- SENT INVITES -->
         <section class="section-card">
           <div class="section-head-row">
             <h3>Sent Invitations</h3>
           </div>
-          <div id="staffInvitationsList">Loading...</div>
+
+          <div id="staffInvitationsList">
+            Loading...
+          </div>
         </section>
 
+        <!-- STAFF MEMBERS -->
         <section class="section-card">
           <div class="section-head-row">
-            <h3>Staff Members</h3>
+            <h3>Team Members</h3>
           </div>
-          <div id="staffList">Loading...</div>
+
+          <div id="staffList">
+            Loading...
+          </div>
         </section>
 
       </div>
     </main>
 
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
       <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
       </a>
+
       <a href="./products.html" class="bottom-nav-item">
         <span>📦</span>
         <small>Products</small>
       </a>
+
       <a href="./sales.html" class="bottom-nav-item">
         <span>🛒</span>
         <small>Sales</small>
       </a>
-      <a href="./settings.html" class="bottom-nav-item active">
-        <span>⋯</span>
-        <small>More</small>
+
+      <a href="./notifications.html" class="bottom-nav-item">
+        <span>🔔</span>
+        <small>Inbox</small>
+      </a>
+
+      <a href="./staff.html" class="bottom-nav-item active">
+        <span>👥</span>
+        <small>Staff</small>
       </a>
     </nav>
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=710"></script>
-  <script src="./js/supabase.js?v=710"></script>
-  <script src="./js/shared.js?v=710"></script>
-  <script src="./js/staff.js?v=710"></script>
+  <script src="./js/config.js?v=900"></script>
+  <script src="./js/supabase.js?v=900"></script>
+  <script src="./js/shared.js?v=900"></script>
+  <script src="./js/staff.js?v=900"></script>
 </body>
 </html>
