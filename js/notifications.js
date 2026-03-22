@@ -14,12 +14,19 @@ async function loadPendingInvitations() {
   const list = document.getElementById("pendingInvitationsList");
   if (!list) return;
 
+  list.innerHTML = "<p>Loading invitations...</p>";
+
+  const currentEmail = (currentUser.email || "").trim().toLowerCase();
+
   const { data, error } = await supabaseClient
     .from("staff_invitations")
     .select("*")
-    .eq("invitee_user_id", currentUser.id)
+    .or(`invitee_user_id.eq.${currentUser.id},invitee_email.ilike.${currentEmail}`)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
+
+  console.log("CURRENT USER:", currentUser.id, currentUser.email);
+  console.log("PENDING INVITES:", data);
 
   if (error) {
     console.error("LOAD PENDING INVITES ERROR:", error);
@@ -90,8 +97,7 @@ async function acceptInvitation(invitationId, companyId, role) {
       status: "accepted",
       responded_at: new Date().toISOString()
     })
-    .eq("id", invitationId)
-    .eq("invitee_user_id", currentUser.id);
+    .eq("id", invitationId);
 
   if (inviteError) {
     console.error("ACCEPT INVITE ERROR:", inviteError);
@@ -100,8 +106,9 @@ async function acceptInvitation(invitationId, companyId, role) {
   }
 
   await createResponseNotification(invitationId, "accepted");
+
   alert("Invitation accepted successfully.");
-  window.location.href = "./dashboard.html?v=801";
+  window.location.href = "./dashboard.html?v=950";
 }
 
 async function declineInvitation(invitationId) {
@@ -111,8 +118,7 @@ async function declineInvitation(invitationId) {
       status: "declined",
       responded_at: new Date().toISOString()
     })
-    .eq("id", invitationId)
-    .eq("invitee_user_id", currentUser.id);
+    .eq("id", invitationId);
 
   if (error) {
     console.error("DECLINE INVITE ERROR:", error);
@@ -121,6 +127,7 @@ async function declineInvitation(invitationId) {
   }
 
   await createResponseNotification(invitationId, "declined");
+
   alert("Invitation declined.");
   await loadPendingInvitations();
 }
@@ -221,7 +228,7 @@ async function getStoreName(storeId) {
 
 function formatRole(role) {
   if (!role) return "-";
-  return role.replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
+  return role.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 window.acceptInvitation = acceptInvitation;
