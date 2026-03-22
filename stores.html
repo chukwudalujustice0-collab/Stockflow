@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Stores</title>
-  <link rel="stylesheet" href="./css/style.css?v=204" />
+  <link rel="manifest" href="./manifest.json?v=700" />
+  <meta name="theme-color" content="#0b5ed7" />
+  <link rel="stylesheet" href="./css/style.css?v=700" />
 </head>
 <body class="app-body">
   <div class="mobile-app-shell">
@@ -14,28 +16,77 @@
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Stores</h1>
       </div>
+
+      <div class="topbar-user">
+        <strong id="welcomeName">User</strong>
+        <p id="welcomeRole" class="small-text">director</p>
+      </div>
     </header>
 
     <main class="app-content">
       <div class="dashboard-container">
 
+        <section class="hero-dashboard-card premium-hero-card">
+          <div class="hero-dashboard-text">
+            <p class="hero-eyebrow">Store Management</p>
+            <h2>Manage your business stores</h2>
+            <p class="hero-subtext">
+              Create branches, add addresses, and organize your operations better.
+            </p>
+          </div>
+
+          <div class="hero-dashboard-actions">
+            <a href="./dashboard.html" class="hero-main-btn hero-product-btn">Back Home</a>
+            <a href="./products.html" class="hero-main-btn hero-sale-btn">View Products</a>
+          </div>
+        </section>
+
         <section class="section-card">
-          <h3>Create Store</h3>
+          <div class="section-head-row">
+            <h3>Create Store</h3>
+          </div>
 
           <form id="storeForm">
             <div class="form-group">
-              <label>Store Name</label>
-              <input type="text" id="storeName" required />
+              <label for="storeName">Store Name</label>
+              <input
+                type="text"
+                id="storeName"
+                placeholder="Enter store name"
+                required
+              />
             </div>
 
-            <button class="btn-primary full-btn">Create Store</button>
+            <div class="form-group">
+              <label for="storeType">Store Type</label>
+              <select id="storeType">
+                <option value="Main Branch">Main Branch</option>
+                <option value="Branch">Branch</option>
+                <option value="Outlet">Outlet</option>
+                <option value="Warehouse">Warehouse</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="storeAddress">Store Address</label>
+              <textarea
+                id="storeAddress"
+                rows="3"
+                placeholder="Enter store address"
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary full-btn">Create Store</button>
           </form>
 
           <p id="storeMsg" class="message"></p>
         </section>
 
         <section class="section-card">
-          <h3>Your Stores</h3>
+          <div class="section-head-row">
+            <h3>Your Stores</h3>
+          </div>
+
           <div id="storeList">Loading...</div>
         </section>
 
@@ -58,6 +109,11 @@
         <small>Sales</small>
       </a>
 
+      <a href="./reports.html" class="bottom-nav-item">
+        <span>📊</span>
+        <small>Reports</small>
+      </a>
+
       <a href="./stores.html" class="bottom-nav-item active">
         <span>🏪</span>
         <small>Stores</small>
@@ -67,9 +123,9 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js"></script>
-  <script src="./js/supabase.js"></script>
-  <script src="./js/shared.js"></script>
-  <script src="./js/stores.js"></script>
+  <script src="./js/config.js?v=700"></script>
+  <script src="./js/supabase.js?v=700"></script>
+  <script src="./js/shared.js?v=700"></script>
+  <script src="./js/stores.js?v=700"></script>
 </body>
 </html>
