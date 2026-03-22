@@ -22,7 +22,7 @@ async function loadPendingInvitations() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("LOAD PENDING INVITATIONS ERROR:", error);
+    console.error("LOAD PENDING INVITES ERROR:", error);
     list.innerHTML = "<p>Unable to load invitations.</p>";
     return;
   }
@@ -35,7 +35,7 @@ async function loadPendingInvitations() {
   const cards = await Promise.all(
     data.map(async (invite) => {
       const companyName = await getCompanyName(invite.company_id);
-      const storeName = invite.store_id ? await getStoreName(invite.store_id) : null;
+      const storeName = invite.store_id ? await getStoreName(invite.store_id) : "";
 
       return `
         <div class="modern-list-card">
@@ -79,7 +79,7 @@ async function acceptInvitation(invitationId, companyId, role) {
     .eq("id", currentUser.id);
 
   if (profileError) {
-    console.error("ACCEPT INVITE PROFILE ERROR:", profileError);
+    console.error("ACCEPT PROFILE ERROR:", profileError);
     alert(profileError.message || "Unable to accept invitation.");
     return;
   }
@@ -94,15 +94,14 @@ async function acceptInvitation(invitationId, companyId, role) {
     .eq("invitee_user_id", currentUser.id);
 
   if (inviteError) {
-    console.error("ACCEPT INVITE UPDATE ERROR:", inviteError);
-    alert(inviteError.message || "Invitation accepted but record update failed.");
+    console.error("ACCEPT INVITE ERROR:", inviteError);
+    alert(inviteError.message || "Invitation accepted, but invite record update failed.");
     return;
   }
 
-  await createNotificationForInviter(invitationId, "accepted");
-
+  await createResponseNotification(invitationId, "accepted");
   alert("Invitation accepted successfully.");
-  location.href = "./dashboard.html?v=800";
+  window.location.href = "./dashboard.html?v=801";
 }
 
 async function declineInvitation(invitationId) {
@@ -121,13 +120,12 @@ async function declineInvitation(invitationId) {
     return;
   }
 
-  await createNotificationForInviter(invitationId, "declined");
-
+  await createResponseNotification(invitationId, "declined");
   alert("Invitation declined.");
   await loadPendingInvitations();
 }
 
-async function createNotificationForInviter(invitationId, action) {
+async function createResponseNotification(invitationId, action) {
   const { data: invite } = await supabaseClient
     .from("staff_invitations")
     .select("invited_by, role")
@@ -193,7 +191,7 @@ async function markNotificationRead(notificationId) {
     .eq("user_id", currentUser.id);
 
   if (error) {
-    console.error("MARK NOTIFICATION READ ERROR:", error);
+    console.error("MARK AS READ ERROR:", error);
     alert("Unable to mark notification as read.");
     return;
   }
@@ -223,11 +221,11 @@ async function getStoreName(storeId) {
 
 function formatRole(role) {
   if (!role) return "-";
-  return role.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return role.replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
 }
-
-loadNotificationsPage();
 
 window.acceptInvitation = acceptInvitation;
 window.declineInvitation = declineInvitation;
 window.markNotificationRead = markNotificationRead;
+
+loadNotificationsPage();
