@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Dashboard</title>
-  <link rel="manifest" href="./manifest.json?v=400" />
+  <link rel="manifest" href="./manifest.json?v=600" />
   <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css?v=400" />
+  <link rel="stylesheet" href="./css/style.css?v=600" />
 </head>
 <body class="app-body">
   <div class="mobile-app-shell">
@@ -48,9 +48,14 @@
       <div class="topbar-left-group">
         <button type="button" id="openDrawerBtn" class="menu-btn">☰</button>
 
-        <div>
-          <p class="eyebrow-text">StockFlow</p>
-          <h1 class="page-title">Dashboard</h1>
+        <div class="brand-stack">
+          <div class="brand-row">
+            <div class="brand-logo-box">📦</div>
+            <div>
+              <p class="eyebrow-text">StockFlow</p>
+              <h1 class="page-title">Dashboard</h1>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -74,13 +79,13 @@
           </div>
 
           <div class="hero-dashboard-actions">
-            <a href="./sales.html" class="btn-primary hero-action-btn hero-sale-btn">New Sale</a>
-            <a href="./products.html" class="btn-outline hero-action-btn">Add Product</a>
+            <a href="./sales.html" class="hero-main-btn hero-sale-btn">New Sale</a>
+            <a href="./products.html" class="hero-main-btn hero-product-btn">Add Product</a>
           </div>
         </section>
 
         <!-- STATS -->
-        <section class="stats-grid">
+        <section class="stats-grid premium-stats-grid">
           <div class="stat-card">
             <div class="stat-icon">🏬</div>
             <p>Stores</p>
@@ -96,7 +101,7 @@
           <div class="stat-card">
             <div class="stat-icon">💰</div>
             <p>Total Sales</p>
-            <h3 id="salesCount">0</h3>
+            <h3 id="salesCount">₦0</h3>
           </div>
 
           <div class="stat-card">
@@ -145,7 +150,7 @@
           </div>
         </section>
 
-        <!-- INSIGHTS -->
+        <!-- INSIGHT ROW 1 -->
         <div class="dashboard-two-col">
           <section class="section-card">
             <div class="section-head-row">
@@ -164,6 +169,7 @@
           </section>
         </div>
 
+        <!-- INSIGHT ROW 2 -->
         <div class="dashboard-two-col">
           <section class="section-card">
             <div class="section-head-row">
@@ -216,9 +222,9 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=400"></script>
-  <script src="./js/supabase.js?v=400"></script>
-  <script src="./js/shared.js?v=400"></script>
-  <script src="./js/dashboard.js?v=400"></script>
+  <script src="./js/config.js?v=600"></script>
+  <script src="./js/supabase.js?v=600"></script>
+  <script src="./js/shared.js?v=600"></script>
+  <script src="./js/dashboard.js?v=600"></script>
 </body>
 </html>
