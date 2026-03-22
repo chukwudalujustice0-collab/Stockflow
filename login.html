@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StockFlow | Login</title>
-  <link rel="manifest" href="./manifest.json?v=6" />
+  <link rel="manifest" href="./manifest.json?v=20" />
   <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css?v=6" />
+  <link rel="stylesheet" href="./css/style.css?v=20" />
 </head>
 <body class="auth-body">
   <div class="auth-container">
@@ -17,7 +17,7 @@
 
     <div class="card">
       <h3>Login</h3>
-      <p class="small-text">Access your business dashboard securely.</p>
+      <p class="small-text">Access your dashboard securely.</p>
 
       <form id="loginForm">
         <div class="form-group">
@@ -33,7 +33,7 @@
 
         <div class="form-group">
           <label for="password">Password</label>
-          <div style="display:flex; gap:8px; align-items:center;">
+          <div class="password-row">
             <input
               type="password"
               id="password"
@@ -45,14 +45,13 @@
               type="button"
               id="togglePasswordBtn"
               class="btn-outline inline-btn"
-              style="white-space:nowrap;"
             >
               Show
             </button>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary" style="width:100%;">
+        <button type="submit" class="btn-primary full-btn">
           Login
         </button>
       </form>
@@ -67,9 +66,9 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=6"></script>
-  <script src="./js/supabase.js?v=6"></script>
-  <script src="./js/shared.js?v=6"></script>
-  <script src="./js/auth.js?v=6"></script>
+  <script src="./js/config.js?v=20"></script>
+  <script src="./js/supabase.js?v=20"></script>
+  <script src="./js/shared.js?v=20"></script>
+  <script src="./js/auth.js?v=20"></script>
 </body>
 </html>
