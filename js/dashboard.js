@@ -22,10 +22,86 @@ function showSetupNotice() {
 
   box.style.display = "block";
   box.innerHTML = `
-    <strong>Setup needed</strong>
-    <p style="margin-top:8px;">Your profile is active, but no company is connected yet.</p>
-    <p class="small-text" style="margin-top:6px;">We’ll connect company flow after recovery is complete.</p>
+    <strong>No company yet</strong>
+    <p style="margin-top:8px;">
+      Create your company to start managing your business.
+    </p>
+
+    <div style="margin-top:12px;">
+      <input
+        id="companyNameInput"
+        type="text"
+        placeholder="Enter company name"
+        style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;"
+      />
+      <button
+        id="createCompanyBtn"
+        style="margin-top:10px;"
+        class="btn-primary full-btn"
+        type="button"
+      >
+        Create Company
+      </button>
+    </div>
   `;
+
+  const btn = document.getElementById("createCompanyBtn");
+  if (btn) btn.onclick = createCompany;
+}
+
+async function createCompany() {
+  const input = document.getElementById("companyNameInput");
+  const name = input?.value.trim();
+
+  if (!name) {
+    alert("Enter company name");
+    return;
+  }
+
+  const btn = document.getElementById("createCompanyBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Creating...";
+  }
+
+  const { data, error } = await supabaseClient
+    .from("companies")
+    .insert([
+      {
+        name: name,
+        owner_id: currentUser.id
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error("CREATE COMPANY ERROR:", error);
+    alert(error.message || "Failed to create company");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Create Company";
+    }
+    return;
+  }
+
+  const { error: profileUpdateError } = await supabaseClient
+    .from("profiles")
+    .update({ company_id: data.id })
+    .eq("id", currentUser.id);
+
+  if (profileUpdateError) {
+    console.error("PROFILE UPDATE ERROR:", profileUpdateError);
+    alert(profileUpdateError.message || "Company created, but profile could not be linked.");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Create Company";
+    }
+    return;
+  }
+
+  alert("Company created successfully");
+  location.reload();
 }
 
 async function loadCompany(companyId) {
@@ -63,11 +139,7 @@ async function loadDashboardStats(profile) {
   let lowStockCount = 0;
 
   if (["director", "assistant_director"].includes(profile.role || "")) {
-    const [
-      storesRes,
-      productsRes,
-      salesRes
-    ] = await Promise.all([
+    const [storesRes, productsRes, salesRes] = await Promise.all([
       supabaseClient
         .from("stores")
         .select("*", { count: "exact", head: true })
