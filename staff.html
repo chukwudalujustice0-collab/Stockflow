@@ -4,16 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Staff</title>
-
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/style.css?v=710" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <!-- TOP -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
@@ -21,97 +16,89 @@
       </div>
 
       <div class="topbar-user">
-        <strong id="welcomeName">Loading...</strong>
-        <p id="welcomeRole" class="small-text"></p>
+        <strong id="welcomeName">User</strong>
+        <p id="welcomeRole" class="small-text">director</p>
       </div>
     </header>
 
-    <!-- MAIN -->
     <main class="app-content">
+      <div class="dashboard-container">
 
-      <!-- INVITE FORM -->
-      <section class="modern-card">
-        <h3>Invite Staff</h3>
-
-        <form id="inviteStaffForm">
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="inviteEmail" required />
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Invite Staff</h3>
           </div>
 
-          <div class="form-group">
-            <label>Role</label>
-            <select id="inviteRole" required>
-              <option value="">Select role</option>
-              <option value="assistant_director">Assistant Director</option>
-              <option value="store_manager">Store Manager</option>
-              <option value="sales_rep">Sales Rep</option>
-            </select>
+          <form id="staffInviteForm">
+            <div class="form-group">
+              <label for="staffEmail">Email Address</label>
+              <input type="email" id="staffEmail" placeholder="Enter staff email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="staffRole">Role</label>
+              <select id="staffRole" required>
+                <option value="assistant_director">Assistant Director</option>
+                <option value="store_manager">Store Manager</option>
+                <option value="sales_rep">Sales Rep</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="staffStore">Assign Store (required for Store Manager / Sales Rep)</label>
+              <select id="staffStore">
+                <option value="">Select store</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn-primary full-btn">Send Invitation</button>
+          </form>
+
+          <p id="staffMessage" class="message"></p>
+        </section>
+
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Sent Invitations</h3>
           </div>
+          <div id="staffInvitationsList">Loading...</div>
+        </section>
 
-          <div class="form-group">
-            <label>Assign Store (optional for Assistant Director)</label>
-            <select id="inviteStore">
-              <option value="">Select store</option>
-            </select>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Staff Members</h3>
           </div>
+          <div id="staffList">Loading...</div>
+        </section>
 
-          <button type="submit" class="btn-primary">Send Invitation</button>
-        </form>
-
-        <p id="inviteMessage" class="message"></p>
-      </section>
-
-      <!-- INVITATIONS -->
-      <section class="modern-card">
-        <div class="section-row">
-          <h3>Sent Invitations</h3>
-        </div>
-
-        <div id="invitationList">
-          Loading...
-        </div>
-      </section>
-
+      </div>
     </main>
 
-    <!-- NAV -->
     <nav class="bottom-nav">
-
       <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
       </a>
-
       <a href="./products.html" class="bottom-nav-item">
         <span>📦</span>
         <small>Products</small>
       </a>
-
       <a href="./sales.html" class="bottom-nav-item">
         <span>🛒</span>
         <small>Sales</small>
       </a>
-
-      <a href="./settings.html" class="bottom-nav-item">
-        <span>⚙️</span>
+      <a href="./settings.html" class="bottom-nav-item active">
+        <span>⋯</span>
         <small>More</small>
       </a>
-
-      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span>
-        <small>Logout</small>
-      </button>
-
     </nav>
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js"></script>
-  <script src="./js/supabase.js"></script>
-  <script src="./js/shared.js"></script>
-  <script src="./js/staff.js"></script>
+  <script src="./js/config.js?v=710"></script>
+  <script src="./js/supabase.js?v=710"></script>
+  <script src="./js/shared.js?v=710"></script>
+  <script src="./js/staff.js?v=710"></script>
 </body>
 </html>
