@@ -27,40 +27,34 @@ async function requireAuth() {
     if (!profile) {
       const fallbackName =
         currentUser.user_metadata?.full_name ||
-        currentUser.user_metadata?.name ||
-        currentUser.email?.split("@")[0] ||
+        splitPartSafe(currentUser.email, "@", 0) ||
         "User";
 
-      const { error: createError } = await supabaseClient
+      const { error: insertError } = await supabaseClient
         .from("profiles")
         .insert([
           {
             id: currentUser.id,
-            email: currentUser.email,
             full_name: fallbackName,
+            phone: currentUser.user_metadata?.phone || "",
+            email: currentUser.email,
             role: "director"
           }
         ]);
 
-      if (createError) {
-        console.error("PROFILE CREATE ERROR:", createError);
-        alert("Profile could not be created automatically.");
+      if (insertError) {
+        console.error("PROFILE INSERT ERROR:", insertError);
+        alert("Profile not found and could not be created.");
         return null;
       }
 
-      const { data: newProfile, error: reloadError } = await supabaseClient
+      const reload = await supabaseClient
         .from("profiles")
         .select("*")
         .eq("id", currentUser.id)
         .maybeSingle();
 
-      if (reloadError || !newProfile) {
-        console.error("PROFILE RELOAD ERROR:", reloadError);
-        alert("Profile created but could not be loaded.");
-        return null;
-      }
-
-      profile = newProfile;
+      profile = reload.data;
     }
 
     currentProfile = profile;
@@ -71,6 +65,12 @@ async function requireAuth() {
     alert("Authentication failed.");
     return null;
   }
+}
+
+function splitPartSafe(value, separator, index) {
+  if (!value) return "";
+  const parts = String(value).split(separator);
+  return parts[index] || "";
 }
 
 function fillHeader(profile) {
