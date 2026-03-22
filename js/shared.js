@@ -6,24 +6,64 @@ async function requireAuth() {
     const { data, error } = await supabaseClient.auth.getUser();
 
     if (error || !data?.user) {
-      window.location.href = "login.html";
+      window.location.href = "./login.html";
       return null;
     }
 
     currentUser = data.user;
 
-    const { data: profile, error: profileError } = await supabaseClient
+    let { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("*")
       .eq("id", currentUser.id)
       .maybeSingle();
 
-    if (profileError || !profile) {
-      console.error("PROFILE ERROR:", profileError);
-      alert("Profile not found. Please login again.");
-      await supabaseClient.auth.signOut();
-      window.location.href = "login.html";
+    if (profileError) {
+      console.error("PROFILE LOAD ERROR:", profileError);
+      alert("Unable to load profile. Please try again.");
       return null;
+    }
+
+    // AUTO-CREATE PROFILE IF MISSING
+    if (!profile) {
+      const fallbackName =
+        currentUser.user_metadata?.full_name ||
+        currentUser.user_metadata?.name ||
+        currentUser.email?.split("@")[0] ||
+        "User";
+
+      const { error: createError } = await supabaseClient
+        .from("profiles")
+        .insert([
+          {
+            id: currentUser.id,
+            email: currentUser.email,
+            full_name: fallbackName,
+            role: "director"
+          }
+        ]);
+
+      if (createError) {
+        console.error("PROFILE CREATE ERROR:", createError);
+        alert("Profile could not be created automatically. Please try again.");
+        return null;
+      }
+
+      const { data: newProfile, error: reloadError } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (reloadError || !newProfile) {
+        console.error("PROFILE RELOAD ERROR:", reloadError);
+        alert("Profile created but could not be loaded. Please login again.");
+        await supabaseClient.auth.signOut();
+        window.location.href = "./login.html";
+        return null;
+      }
+
+      profile = newProfile;
     }
 
     currentProfile = profile;
@@ -31,7 +71,8 @@ async function requireAuth() {
 
   } catch (err) {
     console.error("AUTH ERROR:", err);
-    window.location.href = "login.html";
+    alert("Authentication failed.");
+    window.location.href = "./login.html";
     return null;
   }
 }
@@ -51,14 +92,15 @@ function fillHeader(profile) {
 
 async function logoutUser() {
   await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
+  window.location.href = "./login.html";
 }
 
-// global logout listener
 document.addEventListener("click", async (e) => {
   if (
     e.target &&
-    (e.target.id === "logoutBtn" || e.target.id === "logoutBtnNav")
+    (e.target.id === "logoutBtn" ||
+      e.target.id === "logoutBtnNav" ||
+      e.target.id === "logoutBtnSettings")
   ) {
     await logoutUser();
   }
