@@ -10,19 +10,12 @@ async function loadDashboardPage() {
     return;
   }
 
-  await Promise.all([
-    loadCompany(profile.company_id),
-    loadDashboardStats(profile),
-    loadAssignedStores(profile),
-    loadInvitationNotice()
-  ]);
+  await loadCompany(profile.company_id);
+  await loadDashboardStats(profile);
+  await loadAssignedStores(profile);
+  await loadInvitationNotice();
 }
 
-loadDashboardPage();
-
-// ======================
-// SETUP NOTICE
-// ======================
 function showSetupNotice() {
   const box = document.getElementById("setupNotice");
   if (!box) return;
@@ -30,16 +23,11 @@ function showSetupNotice() {
   box.style.display = "block";
   box.innerHTML = `
     <strong>Setup needed</strong>
-    <p style="margin-top:8px;">Create your company to start using StockFlow fully.</p>
-    <div style="margin-top:10px;">
-      <a href="./settings.html" class="btn-primary">Go to Settings</a>
-    </div>
+    <p style="margin-top:8px;">Your profile is active, but no company is connected yet.</p>
+    <p class="small-text" style="margin-top:6px;">We’ll connect company flow after recovery is complete.</p>
   `;
 }
 
-// ======================
-// COMPANY
-// ======================
 async function loadCompany(companyId) {
   const companyNameEl = document.getElementById("companyName");
   const roleTextEl = document.getElementById("dashboardRoleText");
@@ -55,17 +43,14 @@ async function loadCompany(companyId) {
   }
 
   if (companyNameEl) {
-    companyNameEl.textContent = data?.name || "My Company";
+    companyNameEl.textContent = data?.name || "My Business";
   }
 
   if (roleTextEl) {
-    roleTextEl.textContent = `Role: ${currentProfile.role || "-"}`;
+    roleTextEl.textContent = `Role: ${currentProfile?.role || "director"}`;
   }
 }
 
-// ======================
-// DASHBOARD STATS
-// ======================
 async function loadDashboardStats(profile) {
   const storeCountEl = document.getElementById("storeCount");
   const productCountEl = document.getElementById("productCount");
@@ -77,11 +62,11 @@ async function loadDashboardStats(profile) {
   let salesCount = 0;
   let lowStockCount = 0;
 
-  if (["director", "assistant_director"].includes(profile.role)) {
+  if (["director", "assistant_director"].includes(profile.role || "")) {
     const [
-      { count: storesCount },
-      { data: products },
-      { count: totalSales }
+      storesRes,
+      productsRes,
+      salesRes
     ] = await Promise.all([
       supabaseClient
         .from("stores")
@@ -99,10 +84,10 @@ async function loadDashboardStats(profile) {
         .eq("company_id", profile.company_id)
     ]);
 
-    storeCount = storesCount || 0;
-    productCount = (products || []).length;
-    salesCount = totalSales || 0;
-    lowStockCount = (products || []).filter(
+    storeCount = storesRes.count || 0;
+    productCount = (productsRes.data || []).length;
+    salesCount = salesRes.count || 0;
+    lowStockCount = (productsRes.data || []).filter(
       (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
     ).length;
   } else {
@@ -112,18 +97,14 @@ async function loadDashboardStats(profile) {
       .eq("staff_id", currentUser.id);
 
     if (accessError) {
-      console.error("DASHBOARD ACCESS ERROR:", accessError);
+      console.error("ACCESS ERROR:", accessError);
     }
 
     const storeIds = (accessRows || []).map((row) => row.store_id);
-
     storeCount = storeIds.length;
 
     if (storeIds.length) {
-      const [
-        { data: products },
-        { count: totalSales }
-      ] = await Promise.all([
+      const [productsRes, salesRes] = await Promise.all([
         supabaseClient
           .from("products")
           .select("id, quantity, reorder_level")
@@ -135,9 +116,9 @@ async function loadDashboardStats(profile) {
           .eq("sold_by", currentUser.id)
       ]);
 
-      productCount = (products || []).length;
-      salesCount = totalSales || 0;
-      lowStockCount = (products || []).filter(
+      productCount = (productsRes.data || []).length;
+      salesCount = salesRes.count || 0;
+      lowStockCount = (productsRes.data || []).filter(
         (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
       ).length;
     }
@@ -149,16 +130,13 @@ async function loadDashboardStats(profile) {
   if (lowStockCountEl) lowStockCountEl.textContent = String(lowStockCount);
 }
 
-// ======================
-// ASSIGNED STORES
-// ======================
 async function loadAssignedStores(profile) {
   const storeList = document.getElementById("storeList");
   if (!storeList) return;
 
   let stores = [];
 
-  if (["director", "assistant_director"].includes(profile.role)) {
+  if (["director", "assistant_director"].includes(profile.role || "")) {
     const { data, error } = await supabaseClient
       .from("stores")
       .select("*")
@@ -166,7 +144,7 @@ async function loadAssignedStores(profile) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("DASHBOARD STORES ERROR:", error);
+      console.error("LOAD STORES ERROR:", error);
       storeList.innerHTML = "<p>Unable to load stores.</p>";
       return;
     }
@@ -179,8 +157,8 @@ async function loadAssignedStores(profile) {
       .eq("staff_id", currentUser.id);
 
     if (accessError) {
-      console.error("STAFF STORE ACCESS ERROR:", accessError);
-      storeList.innerHTML = "<p>Unable to load assigned stores.</p>";
+      console.error("STAFF ACCESS ERROR:", accessError);
+      storeList.innerHTML = "<p>Unable to load stores.</p>";
       return;
     }
 
@@ -199,7 +177,7 @@ async function loadAssignedStores(profile) {
 
     if (error) {
       console.error("ASSIGNED STORES ERROR:", error);
-      storeList.innerHTML = "<p>Unable to load assigned stores.</p>";
+      storeList.innerHTML = "<p>Unable to load stores.</p>";
       return;
     }
 
@@ -220,9 +198,6 @@ async function loadAssignedStores(profile) {
   `).join("");
 }
 
-// ======================
-// INVITATION NOTICE
-// ======================
 async function loadInvitationNotice() {
   const notice = document.getElementById("invitationNotice");
   if (!notice) return;
@@ -237,7 +212,7 @@ async function loadInvitationNotice() {
     .maybeSingle();
 
   if (error) {
-    console.error("INVITATION NOTICE ERROR:", error);
+    console.error("INVITATION ERROR:", error);
     return;
   }
 
@@ -253,3 +228,5 @@ async function loadInvitationNotice() {
     <small>${new Date(data.created_at).toLocaleString()}</small>
   `;
 }
+
+loadDashboardPage();
