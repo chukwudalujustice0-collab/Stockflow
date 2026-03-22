@@ -1,114 +1,49 @@
-async function loadReceipt() {
+async function loadReceiptPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
-  const container = document.getElementById("receiptContainer");
+  fillHeader(auth.profile);
 
   const params = new URLSearchParams(window.location.search);
   const saleId = params.get("sale");
 
+  const container = document.getElementById("receiptContainer");
+
   if (!saleId) {
-    container.innerHTML = "<p>No receipt found.</p>";
+    container.innerHTML = "<p>No sale ID provided.</p>";
     return;
   }
 
-  // ======================
-  // LOAD SALE
-  // ======================
   const { data: sale, error: saleError } = await supabaseClient
     .from("sales")
     .select("*")
     .eq("id", saleId)
-    .single();
-
-  if (saleError || !sale) {
-    console.error(saleError);
-    container.innerHTML = "<p>Unable to load sale.</p>";
-    return;
-  }
-
-  // ======================
-  // LOAD ITEMS
-  // ======================
-  const { data: items, error: itemsError } = await supabaseClient
-    .from("sale_items")
-    .select("*")
-    .eq("sale_id", saleId);
-
-  if (itemsError) {
-    console.error(itemsError);
-    container.innerHTML = "<p>Unable to load items.</p>";
-    return;
-  }
-
-  // ======================
-  // LOAD STORE
-  // ======================
-  const { data: store } = await supabaseClient
-    .from("stores")
-    .select("name")
-    .eq("id", sale.store_id)
     .maybeSingle();
 
-  // ======================
-  // LOAD CUSTOMER
-  // ======================
-  let customerName = "Walk-in Customer";
-
-  if (sale.customer_id) {
-    const { data: customer } = await supabaseClient
-      .from("customers")
-      .select("name")
-      .eq("id", sale.customer_id)
-      .maybeSingle();
-
-    if (customer) {
-      customerName = customer.name;
-    }
+  if (saleError || !sale) {
+    console.error("RECEIPT LOAD ERROR:", saleError);
+    container.innerHTML = "<p>Unable to load receipt.</p>";
+    return;
   }
 
-  // ======================
-  // RENDER RECEIPT
-  // ======================
-  const itemsHtml = (items || []).map(item => `
-    <tr>
-      <td>${item.quantity}</td>
-      <td>₦${Number(item.unit_price).toLocaleString()}</td>
-      <td>₦${Number(item.subtotal).toLocaleString()}</td>
-    </tr>
-  `).join("");
+  // NOTE: We are not yet storing sale items separately,
+  // so we only show summary for now
 
   container.innerHTML = `
     <div class="receipt-box">
-      <h2 style="text-align:center;">StockFlow Receipt</h2>
+      <h3 style="margin-bottom:10px;">Receipt</h3>
 
-      <p><strong>Store:</strong> ${store?.name || "-"}</p>
-      <p><strong>Customer:</strong> ${customerName}</p>
+      <p><strong>Sale ID:</strong> ${sale.id}</p>
       <p><strong>Date:</strong> ${new Date(sale.created_at).toLocaleString()}</p>
+      <p><strong>Store:</strong> ${sale.store_id}</p>
 
-      <table style="width:100%; margin-top:10px;">
-        <thead>
-          <tr>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHtml}
-        </tbody>
-      </table>
+      <hr style="margin:10px 0;" />
 
-      <hr />
+      <h2 style="margin:10px 0;">₦${Number(sale.total || 0).toLocaleString()}</h2>
 
-      <h3>Total: ₦${Number(sale.total_amount).toLocaleString()}</h3>
-      <p><strong>Payment:</strong> ${sale.payment_method}</p>
-
-      <p style="text-align:center; margin-top:20px;">
-        Thank you for your business
-      </p>
+      <p>Thank you for your purchase!</p>
     </div>
   `;
 }
 
-loadReceipt();
+loadReceiptPage();
