@@ -20,11 +20,10 @@ async function requireAuth() {
 
     if (profileError) {
       console.error("PROFILE LOAD ERROR:", profileError);
-      alert("Unable to load profile. Please try again.");
+      alert("Unable to load profile.");
       return null;
     }
 
-    // AUTO-CREATE PROFILE IF MISSING
     if (!profile) {
       const fallbackName =
         currentUser.user_metadata?.full_name ||
@@ -45,7 +44,7 @@ async function requireAuth() {
 
       if (createError) {
         console.error("PROFILE CREATE ERROR:", createError);
-        alert("Profile could not be created automatically. Please try again.");
+        alert("Profile could not be created automatically.");
         return null;
       }
 
@@ -57,9 +56,7 @@ async function requireAuth() {
 
       if (reloadError || !newProfile) {
         console.error("PROFILE RELOAD ERROR:", reloadError);
-        alert("Profile created but could not be loaded. Please login again.");
-        await supabaseClient.auth.signOut();
-        window.location.href = "./login.html";
+        alert("Profile created but could not be loaded.");
         return null;
       }
 
@@ -72,7 +69,6 @@ async function requireAuth() {
   } catch (err) {
     console.error("AUTH ERROR:", err);
     alert("Authentication failed.");
-    window.location.href = "./login.html";
     return null;
   }
 }
@@ -82,11 +78,11 @@ function fillHeader(profile) {
   const roleEl = document.getElementById("welcomeRole");
 
   if (nameEl) {
-    nameEl.textContent = profile.full_name || profile.email || "User";
+    nameEl.textContent = profile?.full_name || profile?.email || "User";
   }
 
   if (roleEl) {
-    roleEl.textContent = profile.role || "No role";
+    roleEl.textContent = profile?.role || "director";
   }
 }
 
