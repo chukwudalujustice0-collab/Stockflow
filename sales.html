@@ -4,16 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Sales</title>
-
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/style.css?v=205" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <!-- TOP BAR -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
@@ -21,89 +16,84 @@
       </div>
 
       <div class="topbar-user">
-        <strong id="welcomeName">Loading...</strong>
-        <p id="welcomeRole" class="small-text"></p>
+        <strong id="welcomeName">User</strong>
+        <p id="welcomeRole" class="small-text">director</p>
       </div>
     </header>
 
-    <!-- MAIN -->
     <main class="app-content">
+      <div class="dashboard-container">
 
-      <section class="modern-card">
-        <label for="salesStore">Select Store</label>
-        <select id="salesStore">
-          <option value="">Select store</option>
-        </select>
-      </section>
+        <section class="hero-dashboard-card">
+          <div class="hero-dashboard-text">
+            <p class="hero-eyebrow">Point of Sale</p>
+            <h2>Create and manage sales</h2>
+            <p class="hero-subtext">Select a store, add products to cart, and complete checkout.</p>
+          </div>
+        </section>
 
-      <section class="modern-card">
-        <label for="saleCustomer">Customer (optional)</label>
-        <select id="saleCustomer">
-          <option value="">Walk-in customer</option>
-        </select>
-      </section>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Start Sale</h3>
+          </div>
 
-      <section class="modern-card">
-        <input type="text" id="productSearch" placeholder="Search product..." />
-      </section>
+          <div class="form-group">
+            <label for="salesStore">Store</label>
+            <select id="salesStore">
+              <option value="">Select store</option>
+            </select>
+          </div>
 
-      <section class="modern-card">
-        <div class="section-row">
-          <h3>Products</h3>
-        </div>
+          <div class="form-group">
+            <label for="productSearch">Search Product</label>
+            <input type="text" id="productSearch" placeholder="Search by product name" />
+          </div>
+        </section>
 
-        <div id="salesProductsList" class="products-grid">
-          <p>Select a store first.</p>
-        </div>
-      </section>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Products</h3>
+          </div>
 
-      <section class="modern-card">
-        <h3>Cart</h3>
+          <div id="salesProductsList" class="products-grid">
+            <p>Select a store first.</p>
+          </div>
+        </section>
 
-        <div id="cartList">
-          <p>No items in cart.</p>
-        </div>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Cart</h3>
+          </div>
 
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select id="paymentMethod">
-            <option value="cash">Cash</option>
-            <option value="transfer">Transfer</option>
-            <option value="pos">POS</option>
-            <option value="credit">Credit</option>
-          </select>
-        </div>
+          <div id="cartList">
+            <p>No items in cart.</p>
+          </div>
 
-        <div class="form-group" id="cashReceivedWrap">
-          <label for="cashReceived">Cash Received</label>
-          <input type="number" id="cashReceived" placeholder="0" min="0" step="0.01" />
-        </div>
+          <div class="totals-box">
+            <p><strong>Total:</strong> ₦<span id="cartTotal">0</span></p>
+          </div>
 
-        <div class="totals-box">
-          <p>Subtotal: ₦<span id="cartSubtotal">0</span></p>
-          <p>Total: ₦<span id="cartTotal">0</span></p>
-          <p>Change: ₦<span id="cartChange">0</span></p>
-        </div>
+          <button id="checkoutBtn" type="button" class="btn-primary full-btn">
+            Complete Sale
+          </button>
 
-        <button id="checkoutBtn" type="button" class="btn-primary">Checkout</button>
-        <p id="salesMessage" class="message"></p>
-      </section>
+          <p id="salesMessage" class="message"></p>
+        </section>
 
-      <section class="modern-card">
-        <div class="section-row">
-          <h3>Recent Sales</h3>
-        </div>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Recent Sales</h3>
+          </div>
 
-        <div id="recentSalesList">
-          <p>Loading...</p>
-        </div>
-      </section>
+          <div id="recentSalesList">
+            <p>Loading...</p>
+          </div>
+        </section>
 
+      </div>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-
       <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
@@ -119,21 +109,14 @@
         <small>Sales</small>
       </a>
 
-      <a href="./settings.html" class="bottom-nav-item">
-        <span>⚙️</span>
-        <small>More</small>
+      <a href="./stores.html" class="bottom-nav-item">
+        <span>🏪</span>
+        <small>Stores</small>
       </a>
-
-      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span>
-        <small>Logout</small>
-      </button>
-
     </nav>
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/config.js"></script>
   <script src="./js/supabase.js"></script>
