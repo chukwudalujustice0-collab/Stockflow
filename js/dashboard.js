@@ -4,16 +4,47 @@ async function loadDashboardPage() {
 
   const { profile } = auth;
   fillHeader(profile);
+  setupDrawer(profile);
 
   if (!profile.company_id) {
     showSetupNotice();
     return;
   }
 
-  await loadCompany(profile.company_id);
-  await loadDashboardStats(profile);
-  await loadAssignedStores(profile);
-  await loadInvitationNotice();
+  await Promise.all([
+    loadCompany(profile.company_id),
+    loadDashboardStats(profile),
+    loadAssignedStores(profile),
+    loadInvitationNotice(),
+    loadRecentSales(profile),
+    loadLowStock(profile),
+    loadNotificationPreview()
+  ]);
+}
+
+function setupDrawer(profile) {
+  const openBtn = document.getElementById("openDrawerBtn");
+  const closeBtn = document.getElementById("closeDrawerBtn");
+  const drawer = document.getElementById("sideDrawer");
+  const overlay = document.getElementById("drawerOverlay");
+
+  const drawerCompanyName = document.getElementById("drawerCompanyName");
+  const drawerRoleText = document.getElementById("drawerRoleText");
+
+  if (drawerCompanyName) drawerCompanyName.textContent = profile.company_id ? "Loading..." : "No company yet";
+  if (drawerRoleText) drawerRoleText.textContent = profile.role || "director";
+
+  openBtn?.addEventListener("click", () => {
+    drawer?.classList.add("drawer-open");
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    drawer?.classList.remove("drawer-open");
+  });
+
+  overlay?.addEventListener("click", () => {
+    drawer?.classList.remove("drawer-open");
+  });
 }
 
 function showSetupNotice() {
@@ -23,21 +54,18 @@ function showSetupNotice() {
   box.style.display = "block";
   box.innerHTML = `
     <strong>No company yet</strong>
-    <p style="margin-top:8px;">
-      Create your company to start managing your business.
-    </p>
-
+    <p style="margin-top:8px;">Create your company to unlock all dashboard tools.</p>
     <div style="margin-top:12px;">
       <input
         id="companyNameInput"
         type="text"
         placeholder="Enter company name"
-        style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;"
+        style="width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;"
       />
       <button
         id="createCompanyBtn"
-        style="margin-top:10px;"
         class="btn-primary full-btn"
+        style="margin-top:10px;"
         type="button"
       >
         Create Company
@@ -45,8 +73,19 @@ function showSetupNotice() {
     </div>
   `;
 
-  const btn = document.getElementById("createCompanyBtn");
-  if (btn) btn.onclick = createCompany;
+  document.getElementById("createCompanyBtn")?.addEventListener("click", createCompany);
+
+  const sectionsToHide = [
+    "recentSalesList",
+    "lowStockList",
+    "storeList",
+    "notificationPreview"
+  ];
+
+  sectionsToHide.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = "<p>Complete company setup first.</p>";
+  });
 }
 
 async function createCompany() {
@@ -68,7 +107,7 @@ async function createCompany() {
     .from("companies")
     .insert([
       {
-        name: name,
+        name,
         owner_id: currentUser.id
       }
     ])
@@ -85,18 +124,14 @@ async function createCompany() {
     return;
   }
 
-  const { error: profileUpdateError } = await supabaseClient
+  const { error: updateError } = await supabaseClient
     .from("profiles")
     .update({ company_id: data.id })
     .eq("id", currentUser.id);
 
-  if (profileUpdateError) {
-    console.error("PROFILE UPDATE ERROR:", profileUpdateError);
-    alert(profileUpdateError.message || "Company created, but profile could not be linked.");
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "Create Company";
-    }
+  if (updateError) {
+    console.error("PROFILE COMPANY UPDATE ERROR:", updateError);
+    alert(updateError.message || "Company created but profile update failed.");
     return;
   }
 
@@ -107,6 +142,7 @@ async function createCompany() {
 async function loadCompany(companyId) {
   const companyNameEl = document.getElementById("companyName");
   const roleTextEl = document.getElementById("dashboardRoleText");
+  const drawerCompanyName = document.getElementById("drawerCompanyName");
 
   const { data, error } = await supabaseClient
     .from("companies")
@@ -118,13 +154,11 @@ async function loadCompany(companyId) {
     console.error("COMPANY LOAD ERROR:", error);
   }
 
-  if (companyNameEl) {
-    companyNameEl.textContent = data?.name || "My Business";
-  }
+  const companyName = data?.name || "My Business";
 
-  if (roleTextEl) {
-    roleTextEl.textContent = `Role: ${currentProfile?.role || "director"}`;
-  }
+  if (companyNameEl) companyNameEl.textContent = companyName;
+  if (roleTextEl) roleTextEl.textContent = `Role: ${currentProfile?.role || "director"}`;
+  if (drawerCompanyName) drawerCompanyName.textContent = companyName;
 }
 
 async function loadDashboardStats(profile) {
@@ -133,128 +167,56 @@ async function loadDashboardStats(profile) {
   const salesCountEl = document.getElementById("salesCount");
   const lowStockCountEl = document.getElementById("lowStockCount");
 
-  let storeCount = 0;
-  let productCount = 0;
-  let salesCount = 0;
-  let lowStockCount = 0;
+  const [storesRes, productsRes, salesRes] = await Promise.all([
+    supabaseClient
+      .from("stores")
+      .select("id")
+      .eq("company_id", profile.company_id),
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const [storesRes, productsRes, salesRes] = await Promise.all([
-      supabaseClient
-        .from("stores")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", profile.company_id),
+    supabaseClient
+      .from("products")
+      .select("id, quantity, reorder_level")
+      .eq("company_id", profile.company_id),
 
-      supabaseClient
-        .from("products")
-        .select("id, quantity, reorder_level")
-        .eq("company_id", profile.company_id),
+    supabaseClient
+      .from("sales")
+      .select("total")
+      .eq("company_id", profile.company_id)
+  ]);
 
-      supabaseClient
-        .from("sales")
-        .select("*", { count: "exact", head: true })
-        .eq("company_id", profile.company_id)
-    ]);
+  const stores = storesRes.data || [];
+  const products = productsRes.data || [];
+  const sales = salesRes.data || [];
 
-    storeCount = storesRes.count || 0;
-    productCount = (productsRes.data || []).length;
-    salesCount = salesRes.count || 0;
-    lowStockCount = (productsRes.data || []).filter(
-      (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
-    ).length;
-  } else {
-    const { data: accessRows, error: accessError } = await supabaseClient
-      .from("staff_store_access")
-      .select("store_id")
-      .eq("staff_id", currentUser.id);
+  const totalSales = sales.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const lowStock = products.filter(
+    (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
+  );
 
-    if (accessError) {
-      console.error("ACCESS ERROR:", accessError);
-    }
-
-    const storeIds = (accessRows || []).map((row) => row.store_id);
-    storeCount = storeIds.length;
-
-    if (storeIds.length) {
-      const [productsRes, salesRes] = await Promise.all([
-        supabaseClient
-          .from("products")
-          .select("id, quantity, reorder_level")
-          .in("store_id", storeIds),
-
-        supabaseClient
-          .from("sales")
-          .select("*", { count: "exact", head: true })
-          .eq("sold_by", currentUser.id)
-      ]);
-
-      productCount = (productsRes.data || []).length;
-      salesCount = salesRes.count || 0;
-      lowStockCount = (productsRes.data || []).filter(
-        (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
-      ).length;
-    }
-  }
-
-  if (storeCountEl) storeCountEl.textContent = String(storeCount);
-  if (productCountEl) productCountEl.textContent = String(productCount);
-  if (salesCountEl) salesCountEl.textContent = String(salesCount);
-  if (lowStockCountEl) lowStockCountEl.textContent = String(lowStockCount);
+  if (storeCountEl) storeCountEl.textContent = String(stores.length);
+  if (productCountEl) productCountEl.textContent = String(products.length);
+  if (salesCountEl) salesCountEl.textContent = `₦${totalSales.toLocaleString()}`;
+  if (lowStockCountEl) lowStockCountEl.textContent = String(lowStock.length);
 }
 
 async function loadAssignedStores(profile) {
   const storeList = document.getElementById("storeList");
   if (!storeList) return;
 
-  let stores = [];
+  const { data, error } = await supabaseClient
+    .from("stores")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false })
+    .limit(5);
 
-  if (["director", "assistant_director"].includes(profile.role || "")) {
-    const { data, error } = await supabaseClient
-      .from("stores")
-      .select("*")
-      .eq("company_id", profile.company_id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("LOAD STORES ERROR:", error);
-      storeList.innerHTML = "<p>Unable to load stores.</p>";
-      return;
-    }
-
-    stores = data || [];
-  } else {
-    const { data: accessRows, error: accessError } = await supabaseClient
-      .from("staff_store_access")
-      .select("store_id")
-      .eq("staff_id", currentUser.id);
-
-    if (accessError) {
-      console.error("STAFF ACCESS ERROR:", accessError);
-      storeList.innerHTML = "<p>Unable to load stores.</p>";
-      return;
-    }
-
-    const ids = (accessRows || []).map((row) => row.store_id);
-
-    if (!ids.length) {
-      storeList.innerHTML = "<p>No store assigned yet.</p>";
-      return;
-    }
-
-    const { data, error } = await supabaseClient
-      .from("stores")
-      .select("*")
-      .in("id", ids)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("ASSIGNED STORES ERROR:", error);
-      storeList.innerHTML = "<p>Unable to load stores.</p>";
-      return;
-    }
-
-    stores = data || [];
+  if (error) {
+    console.error("LOAD STORES ERROR:", error);
+    storeList.innerHTML = "<p>Unable to load stores.</p>";
+    return;
   }
+
+  const stores = data || [];
 
   if (!stores.length) {
     storeList.innerHTML = "<p>No stores yet.</p>";
@@ -266,6 +228,105 @@ async function loadAssignedStores(profile) {
       <strong>${store.name}</strong>
       <p>${store.store_type || "Store"}</p>
       <small>${store.address || ""}</small>
+    </div>
+  `).join("");
+}
+
+async function loadRecentSales(profile) {
+  const list = document.getElementById("recentSalesList");
+  if (!list) return;
+
+  const { data, error } = await supabaseClient
+    .from("sales")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  if (error) {
+    console.error("RECENT SALES ERROR:", error);
+    list.innerHTML = "<p>Unable to load recent sales.</p>";
+    return;
+  }
+
+  const sales = data || [];
+
+  if (!sales.length) {
+    list.innerHTML = "<p>No recent sales yet.</p>";
+    return;
+  }
+
+  list.innerHTML = sales.map((sale) => `
+    <div class="modern-list-card">
+      <strong>₦${Number(sale.total || 0).toLocaleString()}</strong>
+      <p>Store ID: ${sale.store_id || "-"}</p>
+      <small>${new Date(sale.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
+}
+
+async function loadLowStock(profile) {
+  const list = document.getElementById("lowStockList");
+  if (!list) return;
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("company_id", profile.company_id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("LOW STOCK ERROR:", error);
+    list.innerHTML = "<p>Unable to load low stock items.</p>";
+    return;
+  }
+
+  const lowStockItems = (data || []).filter(
+    (p) => Number(p.quantity || 0) <= Number(p.reorder_level || 0)
+  ).slice(0, 5);
+
+  if (!lowStockItems.length) {
+    list.innerHTML = "<p>No low stock items.</p>";
+    return;
+  }
+
+  list.innerHTML = lowStockItems.map((item) => `
+    <div class="modern-list-card">
+      <strong>${item.name}</strong>
+      <p>Qty: ${Number(item.quantity || 0)}</p>
+      <small>Reorder level: ${Number(item.reorder_level || 0)}</small>
+    </div>
+  `).join("");
+}
+
+async function loadNotificationPreview() {
+  const box = document.getElementById("notificationPreview");
+  if (!box) return;
+
+  const { data, error } = await supabaseClient
+    .from("notifications")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error("NOTIFICATION PREVIEW ERROR:", error);
+    box.innerHTML = "<p>No notifications yet.</p>";
+    return;
+  }
+
+  const rows = data || [];
+
+  if (!rows.length) {
+    box.innerHTML = "<p>No notifications yet.</p>";
+    return;
+  }
+
+  box.innerHTML = rows.map((n) => `
+    <div class="modern-list-card">
+      <strong>${n.title || "Update"}</strong>
+      <p>${n.message || ""}</p>
     </div>
   `).join("");
 }
@@ -283,12 +344,7 @@ async function loadInvitationNotice() {
     .limit(1)
     .maybeSingle();
 
-  if (error) {
-    console.error("INVITATION ERROR:", error);
-    return;
-  }
-
-  if (!data) {
+  if (error || !data) {
     notice.style.display = "none";
     return;
   }
