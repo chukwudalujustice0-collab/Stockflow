@@ -6,9 +6,9 @@ async function loadStaffPage() {
   fillHeader(profile);
 
   if (!profile.company_id) {
+    const msg = document.getElementById("staffMessage");
     const invitationsList = document.getElementById("staffInvitationsList");
     const staffList = document.getElementById("staffList");
-    const msg = document.getElementById("staffMessage");
 
     if (msg) msg.textContent = "Create a company first before inviting staff.";
     if (invitationsList) invitationsList.innerHTML = "<p>No company found.</p>";
@@ -66,8 +66,8 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
     return;
   }
 
-  if (role === "store_manager" && !storeId) {
-    if (msg) msg.textContent = "Select a store for Store Manager.";
+  if ((role === "store_manager" || role === "sales_rep") && !storeId) {
+    if (msg) msg.textContent = "Select a store for this role.";
     return;
   }
 
@@ -95,9 +95,7 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
   if (msg) msg.textContent = "Invitation sent successfully.";
   document.getElementById("staffInviteForm")?.reset();
   await loadSentInvitations(currentProfile.company_id);
-}
-
-);
+});
 
 async function loadSentInvitations(companyId) {
   const list = document.getElementById("staffInvitationsList");
@@ -163,9 +161,7 @@ async function loadStaffMembers(companyId) {
 
 function formatRole(role) {
   if (!role) return "-";
-  return role
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return role.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 loadStaffPage();
