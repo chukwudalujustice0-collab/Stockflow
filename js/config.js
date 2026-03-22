@@ -6,5 +6,5 @@ window.APP_CONFIG = {
 };
 
 if (location.protocol !== "https:" && location.hostname !== "localhost") {
-  location.href = "https://" + location.host + location.pathname;
+  location.href = "https://" + location.host + location.pathname + location.search + location.hash;
 }
