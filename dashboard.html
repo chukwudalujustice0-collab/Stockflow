@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Dashboard</title>
-
-  <link rel="manifest" href="./manifest.json?v=20" />
+  <link rel="manifest" href="./manifest.json?v=101" />
   <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css?v=20" />
+  <link rel="stylesheet" href="./css/style.css?v=101" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
@@ -20,53 +18,93 @@
       </div>
 
       <div class="topbar-user">
-        <strong id="welcomeName">...</strong>
-        <p id="welcomeRole" class="small-text"></p>
+        <strong id="welcomeName">User</strong>
+        <p id="welcomeRole" class="small-text">director</p>
       </div>
     </header>
 
     <main class="app-content">
+      <div class="dashboard-container">
 
-      <section id="setupNotice" class="modern-card" style="display:none;"></section>
+        <div id="setupNotice" class="setup-card" style="display:none;"></div>
 
-      <section class="modern-card">
-        <h3 id="companyName">My Business</h3>
-        <p id="dashboardRoleText" class="small-text"></p>
-      </section>
+        <section class="hero-dashboard-card">
+          <div class="hero-dashboard-text">
+            <p class="hero-eyebrow">Business Overview</p>
+            <h2 id="companyName">My Business</h2>
+            <p id="dashboardRoleText" class="hero-subtext">Role: director</p>
+          </div>
 
-      <section class="stats-grid-modern">
-        <div class="modern-stat-card">
-          <h3 id="storeCount">0</h3>
-          <p>Stores</p>
-        </div>
+          <div class="hero-dashboard-actions">
+            <a href="./products.html" class="btn-outline hero-action-btn">Products</a>
+            <a href="./sales.html" class="btn-primary hero-action-btn">New Sale</a>
+          </div>
+        </section>
 
-        <div class="modern-stat-card">
-          <h3 id="productCount">0</h3>
-          <p>Products</p>
-        </div>
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🏬</div>
+            <p>Stores</p>
+            <h3 id="storeCount">0</h3>
+          </div>
 
-        <div class="modern-stat-card">
-          <h3 id="salesCount">0</h3>
-          <p>Sales</p>
-        </div>
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <p>Products</p>
+            <h3 id="productCount">0</h3>
+          </div>
 
-        <div class="modern-stat-card">
-          <h3 id="lowStockCount">0</h3>
-          <p>Low Stock</p>
-        </div>
-      </section>
+          <div class="stat-card">
+            <div class="stat-icon">🧾</div>
+            <p>Sales</p>
+            <h3 id="salesCount">0</h3>
+          </div>
 
-      <section class="modern-card">
-        <div class="section-row">
-          <h3>Your Stores</h3>
-        </div>
-        <div id="storeList">
-          Loading...
-        </div>
-      </section>
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <p>Low Stock</p>
+            <h3 id="lowStockCount">0</h3>
+          </div>
+        </section>
 
-      <section id="invitationNotice" class="modern-card" style="display:none;"></section>
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Quick Actions</h3>
+          </div>
 
+          <div class="quick-actions-grid">
+            <a href="./products.html" class="quick-action-box">
+              <span class="quick-action-emoji">➕</span>
+              <span class="quick-action-title">Add Product</span>
+            </a>
+
+            <a href="./sales.html" class="quick-action-box">
+              <span class="quick-action-emoji">🛒</span>
+              <span class="quick-action-title">New Sale</span>
+            </a>
+
+            <a href="./stores.html" class="quick-action-box">
+              <span class="quick-action-emoji">🏪</span>
+              <span class="quick-action-title">Stores</span>
+            </a>
+
+            <a href="./reports.html" class="quick-action-box">
+              <span class="quick-action-emoji">📊</span>
+              <span class="quick-action-title">Reports</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <div class="section-head-row">
+            <h3>Your Stores</h3>
+          </div>
+          <div id="storeList">Loading...</div>
+        </section>
+
+        <section id="invitationNotice" class="section-card" style="display:none;"></section>
+
+      </div>
     </main>
 
     <nav class="bottom-nav">
@@ -85,6 +123,11 @@
         <small>Sales</small>
       </a>
 
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
+      </a>
+
       <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
         <span>🚪</span>
         <small>Logout</small>
@@ -94,9 +137,9 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=20"></script>
-  <script src="./js/supabase.js?v=20"></script>
-  <script src="./js/shared.js?v=20"></script>
-  <script src="./js/dashboard.js?v=20"></script>
+  <script src="./js/config.js?v=101"></script>
+  <script src="./js/supabase.js?v=101"></script>
+  <script src="./js/shared.js?v=101"></script>
+  <script src="./js/dashboard.js?v=101"></script>
 </body>
 </html>
