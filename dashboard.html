@@ -4,20 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Dashboard</title>
-  <link rel="manifest" href="./manifest.json?v=202" />
+  <link rel="manifest" href="./manifest.json?v=400" />
   <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css?v=202" />
+  <link rel="stylesheet" href="./css/style.css?v=400" />
 </head>
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <header class="app-topbar">
-      <div>
-        <p class="eyebrow-text">StockFlow</p>
-        <h1 class="page-title">Dashboard</h1>
+    <!-- SIDE DRAWER -->
+    <aside id="sideDrawer" class="side-drawer">
+      <div class="side-drawer-overlay" id="drawerOverlay"></div>
+
+      <div class="side-drawer-panel">
+        <div class="drawer-top">
+          <div>
+            <p class="eyebrow-text">StockFlow</p>
+            <h3 class="drawer-title" id="drawerCompanyName">My Business</h3>
+            <p class="small-text" id="drawerRoleText">director</p>
+          </div>
+
+          <button type="button" id="closeDrawerBtn" class="drawer-close-btn">✕</button>
+        </div>
+
+        <div class="drawer-links">
+          <a href="./settings.html" class="drawer-link">⚙️ Settings</a>
+          <a href="./notifications.html" class="drawer-link">🔔 Notifications</a>
+          <a href="./staff.html" class="drawer-link">👥 Staff</a>
+          <a href="./customers.html" class="drawer-link">🧾 Customers</a>
+          <a href="./debt-book.html" class="drawer-link">📒 Debt Book</a>
+          <a href="./pricing.html" class="drawer-link">💳 Pricing</a>
+          <a href="./ask-ai.html" class="drawer-link">🤖 AI Assistant</a>
+          <a href="./settings.html" class="drawer-link">❓ Help Center</a>
+
+          <button id="logoutBtn" class="drawer-link drawer-logout-btn" type="button">
+            🚪 Logout
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- TOP BAR -->
+    <header class="app-topbar premium-topbar">
+      <div class="topbar-left-group">
+        <button type="button" id="openDrawerBtn" class="menu-btn">☰</button>
+
+        <div>
+          <p class="eyebrow-text">StockFlow</p>
+          <h1 class="page-title">Dashboard</h1>
+        </div>
       </div>
 
-      <div class="topbar-user">
+      <div class="topbar-user topbar-user-strong">
         <strong id="welcomeName">User</strong>
         <p id="welcomeRole" class="small-text">director</p>
       </div>
@@ -26,9 +63,10 @@
     <main class="app-content">
       <div class="dashboard-container">
 
-        <div id="setupNotice" class="setup-card" style="display:none;"></div>
+        <section id="setupNotice" class="setup-card" style="display:none;"></section>
 
-        <section class="hero-dashboard-card">
+        <!-- HERO -->
+        <section class="hero-dashboard-card premium-hero-card">
           <div class="hero-dashboard-text">
             <p class="hero-eyebrow">Business Overview</p>
             <h2 id="companyName">My Business</h2>
@@ -36,11 +74,12 @@
           </div>
 
           <div class="hero-dashboard-actions">
-            <a href="./products.html" class="btn-outline hero-action-btn">Products</a>
-            <a href="./sales.html" class="btn-primary hero-action-btn">New Sale</a>
+            <a href="./sales.html" class="btn-primary hero-action-btn hero-sale-btn">New Sale</a>
+            <a href="./products.html" class="btn-outline hero-action-btn">Add Product</a>
           </div>
         </section>
 
+        <!-- STATS -->
         <section class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">🏬</div>
@@ -55,8 +94,8 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">🧾</div>
-            <p>Sales</p>
+            <div class="stat-icon">💰</div>
+            <p>Total Sales</p>
             <h3 id="salesCount">0</h3>
           </div>
 
@@ -67,14 +106,15 @@
           </div>
         </section>
 
+        <!-- QUICK ACTIONS -->
         <section class="section-card">
           <div class="section-head-row">
             <h3>Quick Actions</h3>
           </div>
 
-          <div class="quick-actions-grid">
+          <div class="quick-actions-grid quick-actions-grid-3">
             <a href="./products.html" class="quick-action-box">
-              <span class="quick-action-emoji">➕</span>
+              <span class="quick-action-emoji">📦</span>
               <span class="quick-action-title">Add Product</span>
             </a>
 
@@ -92,15 +132,54 @@
               <span class="quick-action-emoji">📊</span>
               <span class="quick-action-title">Reports</span>
             </a>
+
+            <a href="./ask-ai.html" class="quick-action-box">
+              <span class="quick-action-emoji">🤖</span>
+              <span class="quick-action-title">Ask AI</span>
+            </a>
+
+            <a href="./settings.html" class="quick-action-box quick-action-help">
+              <span class="quick-action-emoji">❓</span>
+              <span class="quick-action-title">Help Center</span>
+            </a>
           </div>
         </section>
 
-        <section class="section-card">
-          <div class="section-head-row">
-            <h3>Your Stores</h3>
-          </div>
-          <div id="storeList">Loading...</div>
-        </section>
+        <!-- INSIGHTS -->
+        <div class="dashboard-two-col">
+          <section class="section-card">
+            <div class="section-head-row">
+              <h3>Recent Sales</h3>
+              <a href="./sales.html" class="mini-link">View All</a>
+            </div>
+            <div id="recentSalesList">Loading...</div>
+          </section>
+
+          <section class="section-card">
+            <div class="section-head-row">
+              <h3>Low Stock Items</h3>
+              <a href="./products.html" class="mini-link">Manage Stock</a>
+            </div>
+            <div id="lowStockList">Loading...</div>
+          </section>
+        </div>
+
+        <div class="dashboard-two-col">
+          <section class="section-card">
+            <div class="section-head-row">
+              <h3>Your Stores</h3>
+            </div>
+            <div id="storeList">Loading...</div>
+          </section>
+
+          <section class="section-card">
+            <div class="section-head-row">
+              <h3>Notifications</h3>
+              <a href="./notifications.html" class="mini-link">View All</a>
+            </div>
+            <div id="notificationPreview">Loading...</div>
+          </section>
+        </div>
 
         <section id="invitationNotice" class="section-card" style="display:none;"></section>
 
@@ -123,23 +202,23 @@
         <small>Sales</small>
       </a>
 
-      <a href="./settings.html" class="bottom-nav-item">
-        <span>⚙️</span>
-        <small>More</small>
+      <a href="./reports.html" class="bottom-nav-item">
+        <span>📊</span>
+        <small>Reports</small>
       </a>
 
-      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span>
-        <small>Logout</small>
-      </button>
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⋯</span>
+        <small>More</small>
+      </a>
     </nav>
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=202"></script>
-  <script src="./js/supabase.js?v=202"></script>
-  <script src="./js/shared.js?v=202"></script>
-  <script src="./js/dashboard.js?v=202"></script>
+  <script src="./js/config.js?v=400"></script>
+  <script src="./js/supabase.js?v=400"></script>
+  <script src="./js/shared.js?v=400"></script>
+  <script src="./js/dashboard.js?v=400"></script>
 </body>
 </html>
