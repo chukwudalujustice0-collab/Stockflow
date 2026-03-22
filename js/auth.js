@@ -1,8 +1,6 @@
-// =========================
-// LOGIN
-// =========================
 const loginForm = document.getElementById("loginForm");
 const loginMessage = document.getElementById("loginMessage");
+const toggleBtn = document.getElementById("togglePasswordBtn");
 
 loginForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -24,6 +22,13 @@ loginForm?.addEventListener("submit", async (e) => {
       return;
     }
 
+    const authResult = await requireAuth();
+
+    if (!authResult) {
+      if (loginMessage) loginMessage.textContent = "Unable to complete login.";
+      return;
+    }
+
     if (loginMessage) loginMessage.textContent = "Login successful. Redirecting...";
 
     setTimeout(() => {
@@ -34,76 +39,6 @@ loginForm?.addEventListener("submit", async (e) => {
     if (loginMessage) loginMessage.textContent = "Unexpected error occurred.";
   }
 });
-
-// =========================
-// SIGNUP
-// =========================
-const signupForm = document.getElementById("signupForm");
-const signupMessage = document.getElementById("signupMessage");
-
-signupForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  if (signupMessage) signupMessage.textContent = "Creating account...";
-
-  const fullName = document.getElementById("fullName")?.value.trim();
-  const email = document.getElementById("email")?.value.trim().toLowerCase();
-  const password = document.getElementById("password")?.value;
-
-  try {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password
-    });
-
-    if (error) {
-      console.error("SIGNUP ERROR:", error);
-      if (signupMessage) signupMessage.textContent = error.message || "Signup failed.";
-      return;
-    }
-
-    const userId = data?.user?.id;
-
-    if (!userId) {
-      if (signupMessage) signupMessage.textContent = "Signup failed. No user returned.";
-      return;
-    }
-
-    const { error: profileError } = await supabaseClient
-      .from("profiles")
-      .insert([
-        {
-          id: userId,
-          email,
-          full_name: fullName,
-          role: "director"
-        }
-      ]);
-
-    if (profileError) {
-      console.error("PROFILE INSERT ERROR:", profileError);
-      if (signupMessage) signupMessage.textContent = profileError.message || "Profile creation failed.";
-      return;
-    }
-
-    if (signupMessage) {
-      signupMessage.classList.add("ok-message");
-      signupMessage.textContent = "Account created successfully. Redirecting to login...";
-    }
-
-    setTimeout(() => {
-      window.location.href = "./login.html";
-    }, 1000);
-  } catch (err) {
-    console.error("SIGNUP EXCEPTION:", err);
-    if (signupMessage) signupMessage.textContent = "Unexpected error occurred.";
-  }
-});
-
-// =========================
-// SHOW / HIDE PASSWORD
-// =========================
-const toggleBtn = document.getElementById("togglePasswordBtn");
 
 toggleBtn?.addEventListener("click", () => {
   const passwordInput = document.getElementById("password");
