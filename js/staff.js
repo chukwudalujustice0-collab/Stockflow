@@ -73,12 +73,25 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
 
   if (msg) msg.textContent = "Sending invitation...";
 
+  // Find invited user first
+  const { data: invitedProfile, error: lookupError } = await supabaseClient
+    .from("profiles")
+    .select("id, email, full_name")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error("INVITED USER LOOKUP ERROR:", lookupError);
+  }
+
+  // Save invitation
   const { error: inviteError } = await supabaseClient
     .from("staff_invitations")
     .insert([
       {
         company_id: currentProfile.company_id,
         invitee_email: email,
+        invitee_user_id: invitedProfile?.id || null,
         role: role,
         store_id: storeId,
         invited_by: currentUser.id,
@@ -92,17 +105,7 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
     return;
   }
 
-  // Create in-app notification if the invited user already has an account
-  const { data: invitedProfile, error: profileLookupError } = await supabaseClient
-    .from("profiles")
-    .select("id, full_name, email")
-    .ilike("email", email)
-    .maybeSingle();
-
-  if (profileLookupError) {
-    console.error("INVITED PROFILE LOOKUP ERROR:", profileLookupError);
-  }
-
+  // Create notification if user already exists
   if (invitedProfile?.id) {
     const companyName = await getCompanyName(currentProfile.company_id);
 
@@ -126,7 +129,7 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
   if (msg) {
     msg.textContent = invitedProfile?.id
       ? "Invitation sent successfully."
-      : "Invitation saved, but the user has not signed up yet so no in-app notification could be delivered.";
+      : "Invitation saved, but the user has not signed up yet, so no in-app notification could be delivered.";
   }
 
   document.getElementById("staffInviteForm")?.reset();
