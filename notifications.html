@@ -4,17 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Notifications</title>
-
-  <link rel="manifest" href="./manifest.json?v=900" />
+  <link rel="manifest" href="./manifest.json?v=950" />
   <meta name="theme-color" content="#0b5ed7" />
-
-  <link rel="stylesheet" href="./css/style.css?v=900" />
+  <link rel="stylesheet" href="./css/style.css?v=950" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <!-- TOP BAR -->
     <header class="app-topbar premium-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
@@ -27,38 +23,32 @@
       </div>
     </header>
 
-    <!-- MAIN -->
     <main class="app-content">
       <div class="dashboard-container">
 
-        <!-- HERO -->
         <section class="hero-dashboard-card premium-hero-card">
           <div class="hero-dashboard-text">
             <p class="hero-eyebrow">Inbox</p>
             <h2>Notifications & Invitations</h2>
             <p class="hero-subtext">
-              Manage your invites, updates, and system alerts in one place.
+              Review updates, accept invitations, or decline invitations you do not want.
             </p>
           </div>
         </section>
 
-        <!-- 🔥 PENDING INVITATIONS (IMPORTANT SECTION) -->
         <section class="section-card">
           <div class="section-head-row">
             <h3>Pending Invitations</h3>
           </div>
-
           <div id="pendingInvitationsList">
             <p>Loading invitations...</p>
           </div>
         </section>
 
-        <!-- ALL NOTIFICATIONS -->
         <section class="section-card">
           <div class="section-head-row">
             <h3>All Notifications</h3>
           </div>
-
           <div id="notificationList">
             <p>Loading notifications...</p>
           </div>
@@ -67,9 +57,7 @@
       </div>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-
       <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
@@ -94,17 +82,14 @@
         <span>🔔</span>
         <small>Inbox</small>
       </a>
-
     </nav>
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=900"></script>
-  <script src="./js/supabase.js?v=900"></script>
-  <script src="./js/shared.js?v=900"></script>
-  <script src="./js/notifications.js?v=900"></script>
-
+  <script src="./js/config.js?v=950"></script>
+  <script src="./js/supabase.js?v=950"></script>
+  <script src="./js/shared.js?v=950"></script>
+  <script src="./js/notifications.js?v=950"></script>
 </body>
 </html>
