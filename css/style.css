@@ -663,3 +663,120 @@ textarea {
     grid-template-columns: 1fr 1fr;
   }
   }
+/* ===== FINAL PREMIUM DASHBOARD ===== */
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* HERO */
+.premium-hero-card {
+  border-radius: 18px;
+  padding: 20px;
+  color: #fff;
+  background: linear-gradient(135deg, #0f2f73, #2563eb, #c084fc);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.hero-dashboard-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.hero-action-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.hero-sale-btn {
+  background: linear-gradient(135deg, #ff8a00, #ff5e2b);
+  color: #fff;
+}
+
+.btn-outline {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+/* QUICK ACTIONS */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.quick-action-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.quick-action-box:hover {
+  transform: translateY(-2px);
+}
+
+.quick-action-emoji {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* CARDS */
+.section-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* TWO COLUMN */
+.dashboard-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 600px) {
+  .dashboard-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* LIST ITEMS */
+.modern-list-card {
+  padding: 12px;
+  border-radius: 10px;
+  background: #f8fbff;
+  margin-bottom: 8px;
+}
