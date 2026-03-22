@@ -6,26 +6,28 @@ async function loadStaffPage() {
   fillHeader(profile);
 
   if (!profile.company_id) {
-    const invitationList = document.getElementById("invitationList");
-    if (invitationList) invitationList.innerHTML = "<p>Create a company first.</p>";
+    const invitationsList = document.getElementById("staffInvitationsList");
+    const staffList = document.getElementById("staffList");
+    const msg = document.getElementById("staffMessage");
+
+    if (msg) msg.textContent = "Create a company first before inviting staff.";
+    if (invitationsList) invitationsList.innerHTML = "<p>No company found.</p>";
+    if (staffList) staffList.innerHTML = "<p>No company found.</p>";
     return;
   }
 
-  if (!["director", "assistant_director"].includes(profile.role || "")) {
-    alert("You do not have permission to access staff invitations.");
-    window.location.href = "./dashboard.html";
-    return;
-  }
-
-  await loadCompanyStores(profile.company_id);
-  await loadInvitations(profile.company_id);
+  await Promise.all([
+    loadStoresForStaff(profile.company_id),
+    loadSentInvitations(profile.company_id),
+    loadStaffMembers(profile.company_id)
+  ]);
 }
 
-async function loadCompanyStores(companyId) {
-  const inviteStore = document.getElementById("inviteStore");
-  if (!inviteStore) return;
+async function loadStoresForStaff(companyId) {
+  const select = document.getElementById("staffStore");
+  if (!select) return;
 
-  inviteStore.innerHTML = `<option value="">Select store</option>`;
+  select.innerHTML = `<option value="">Select store</option>`;
 
   const { data, error } = await supabaseClient
     .from("stores")
@@ -34,7 +36,7 @@ async function loadCompanyStores(companyId) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("LOAD STORES ERROR:", error);
+    console.error("LOAD STAFF STORES ERROR:", error);
     return;
   }
 
@@ -42,13 +44,64 @@ async function loadCompanyStores(companyId) {
     const option = document.createElement("option");
     option.value = store.id;
     option.textContent = store.name;
-    inviteStore.appendChild(option);
+    select.appendChild(option);
   });
 }
 
-async function loadInvitations(companyId) {
-  const invitationList = document.getElementById("invitationList");
-  if (!invitationList) return;
+document.getElementById("staffInviteForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const msg = document.getElementById("staffMessage");
+  const email = document.getElementById("staffEmail")?.value.trim().toLowerCase();
+  const role = document.getElementById("staffRole")?.value;
+  const storeId = document.getElementById("staffStore")?.value || null;
+
+  if (!currentProfile?.company_id) {
+    if (msg) msg.textContent = "No company found.";
+    return;
+  }
+
+  if (!email || !role) {
+    if (msg) msg.textContent = "Email and role are required.";
+    return;
+  }
+
+  if (role === "store_manager" && !storeId) {
+    if (msg) msg.textContent = "Select a store for Store Manager.";
+    return;
+  }
+
+  if (msg) msg.textContent = "Sending invitation...";
+
+  const { error } = await supabaseClient
+    .from("staff_invitations")
+    .insert([
+      {
+        company_id: currentProfile.company_id,
+        invitee_email: email,
+        role: role,
+        store_id: storeId,
+        invited_by: currentUser.id,
+        status: "pending"
+      }
+    ]);
+
+  if (error) {
+    console.error("SEND INVITATION ERROR:", error);
+    if (msg) msg.textContent = error.message || "Failed to send invitation.";
+    return;
+  }
+
+  if (msg) msg.textContent = "Invitation sent successfully.";
+  document.getElementById("staffInviteForm")?.reset();
+  await loadSentInvitations(currentProfile.company_id);
+}
+
+);
+
+async function loadSentInvitations(companyId) {
+  const list = document.getElementById("staffInvitationsList");
+  if (!list) return;
 
   const { data, error } = await supabaseClient
     .from("staff_invitations")
@@ -58,132 +111,61 @@ async function loadInvitations(companyId) {
 
   if (error) {
     console.error("LOAD INVITATIONS ERROR:", error);
-    invitationList.innerHTML = "<p>Unable to load invitations.</p>";
+    list.innerHTML = "<p>Unable to load invitations.</p>";
     return;
   }
 
-  if (!data || !data.length) {
-    invitationList.innerHTML = "<p>No invitations sent yet.</p>";
+  if (!data?.length) {
+    list.innerHTML = "<p>No invitations sent yet.</p>";
     return;
   }
 
-  invitationList.innerHTML = data.map((invite) => `
+  list.innerHTML = data.map((invite) => `
     <div class="modern-list-card">
       <strong>${invite.invitee_email}</strong>
-      <p>Role: ${invite.role}</p>
-      <small>Status: ${invite.status}</small><br>
-      <small>Sent: ${new Date(invite.created_at).toLocaleString()}</small>
+      <p>Role: ${formatRole(invite.role)}</p>
+      <small>Status: ${invite.status}</small>
     </div>
   `).join("");
 }
 
-document.getElementById("inviteStaffForm")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+async function loadStaffMembers(companyId) {
+  const list = document.getElementById("staffList");
+  if (!list) return;
 
-  const inviteMessage = document.getElementById("inviteMessage");
-  const rawEmail = document.getElementById("inviteEmail").value;
-  const email = rawEmail.trim().toLowerCase();
-  const role = document.getElementById("inviteRole").value;
-  const storeId = document.getElementById("inviteStore").value || null;
-
-  if (!currentProfile?.company_id) {
-    if (inviteMessage) inviteMessage.textContent = "Create a company first.";
-    return;
-  }
-
-  if (!email) {
-    if (inviteMessage) inviteMessage.textContent = "Enter staff email.";
-    return;
-  }
-
-  if (!role) {
-    if (inviteMessage) inviteMessage.textContent = "Select a role.";
-    return;
-  }
-
-  if (["store_manager", "sales_rep"].includes(role) && !storeId) {
-    if (inviteMessage) inviteMessage.textContent = "Select a store.";
-    return;
-  }
-
-  if (inviteMessage) inviteMessage.textContent = "Checking user...";
-
-  const { data: matchingUsers, error: profileError } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("profiles")
-    .select("id, email, company_id")
-    .eq("email", email);
+    .select("id, full_name, email, role, company_id")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: false });
 
-  if (profileError) {
-    console.error("PROFILE LOOKUP ERROR:", profileError);
-    if (inviteMessage) inviteMessage.textContent = profileError.message || "Unable to check user.";
+  if (error) {
+    console.error("LOAD STAFF ERROR:", error);
+    list.innerHTML = "<p>Unable to load staff.</p>";
     return;
   }
 
-  if (!matchingUsers || !matchingUsers.length) {
-    if (inviteMessage) inviteMessage.textContent = "No user found with this email. Ask them to sign up first.";
+  const staff = (data || []).filter((row) => row.id !== currentUser.id);
+
+  if (!staff.length) {
+    list.innerHTML = "<p>No staff members yet.</p>";
     return;
   }
 
-  const inviteeProfile = matchingUsers[0];
+  list.innerHTML = staff.map((member) => `
+    <div class="modern-list-card">
+      <strong>${member.full_name || member.email}</strong>
+      <p>${member.email}</p>
+      <small>Role: ${formatRole(member.role)}</small>
+    </div>
+  `).join("");
+}
 
-  if (inviteeProfile.company_id) {
-    if (inviteMessage) inviteMessage.textContent = "This user already belongs to a company.";
-    return;
-  }
+function formatRole(role) {
+  if (!role) return "-";
+  return role
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
-  const { data: existingPending } = await supabaseClient
-    .from("staff_invitations")
-    .select("id")
-    .eq("invitee_email", email)
-    .eq("company_id", currentProfile.company_id)
-    .eq("status", "pending")
-    .maybeSingle();
-
-  if (existingPending) {
-    if (inviteMessage) inviteMessage.textContent = "A pending invitation already exists for this user.";
-    return;
-  }
-
-  if (inviteMessage) inviteMessage.textContent = "Sending invitation...";
-
-  const { data: inviteRow, error: inviteError } = await supabaseClient
-    .from("staff_invitations")
-    .insert([
-      {
-        company_id: currentProfile.company_id,
-        store_id: storeId,
-        invited_by: currentUser.id,
-        invitee_email: email,
-        invitee_user_id: inviteeProfile.id,
-        role,
-        status: "pending"
-      }
-    ])
-    .select()
-    .single();
-
-  if (inviteError) {
-    console.error("INVITE ERROR:", inviteError);
-    if (inviteMessage) inviteMessage.textContent = inviteError.message || "Unable to send invitation.";
-    return;
-  }
-
-  await supabaseClient
-    .from("notifications")
-    .insert([
-      {
-        user_id: inviteeProfile.id,
-        title: "New staff invitation",
-        message: `You have been invited to join a company as ${role}.`,
-        type: "staff_invitation",
-        related_id: inviteRow.id,
-        is_read: false
-      }
-    ]);
-
-  await supabaseClient
-    .from("email_notifications")
-    .insert([
-      {
-        user_id: inviteeProfile.id,
-        email,
+loadStaffPage();
