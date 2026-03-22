@@ -506,3 +506,160 @@ textarea {
 .logout-nav-btn {
   cursor: pointer;
 }
+/* FINAL DASHBOARD LOCK */
+.premium-topbar {
+  align-items: center;
+}
+
+.topbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-user-strong strong {
+  font-size: 15px;
+  text-transform: capitalize;
+}
+
+.menu-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: #0f2f73;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: var(--soft-shadow);
+}
+
+.side-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.side-drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  opacity: 0;
+  transition: 0.2s ease;
+}
+
+.side-drawer-panel {
+  position: absolute;
+  top: 0;
+  left: -320px;
+  width: 300px;
+  max-width: 85%;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  padding: 18px 16px;
+  transition: 0.25s ease;
+  overflow-y: auto;
+}
+
+.drawer-open {
+  pointer-events: auto;
+}
+
+.drawer-open .side-drawer-overlay {
+  opacity: 1;
+}
+
+.drawer-open .side-drawer-panel {
+  left: 0;
+}
+
+.drawer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.drawer-title {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+.drawer-close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: #eef3f9;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.drawer-links {
+  display: grid;
+  gap: 10px;
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  font-weight: 600;
+}
+
+.drawer-logout-btn {
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.premium-hero-card {
+  background: linear-gradient(135deg, #0f2f73 0%, #2563eb 55%, #c084fc 100%);
+}
+
+.hero-sale-btn {
+  background: linear-gradient(135deg, #ff8a00, #ff5e2b) !important;
+  color: #fff !important;
+}
+
+.hero-dashboard-actions .btn-outline {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.quick-actions-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.quick-action-help {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+}
+
+.dashboard-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.mini-link {
+  text-decoration: none;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (min-width: 700px) {
+  .dashboard-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+  }
