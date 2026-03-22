@@ -4,42 +4,72 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Receipt</title>
-
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/style.css?v=208" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <!-- TOP BAR -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Receipt</h1>
       </div>
+
+      <div class="topbar-user">
+        <strong id="welcomeName">User</strong>
+        <p id="welcomeRole" class="small-text">director</p>
+      </div>
     </header>
 
-    <!-- MAIN -->
     <main class="app-content">
+      <div class="dashboard-container">
 
-      <section class="modern-card">
-        <div id="receiptContainer">
-          <p>Loading receipt...</p>
-        </div>
+        <section class="hero-dashboard-card">
+          <div class="hero-dashboard-text">
+            <p class="hero-eyebrow">Sales Receipt</p>
+            <h2>Transaction Summary</h2>
+            <p class="hero-subtext">View and print completed sale details.</p>
+          </div>
+        </section>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-          <button type="button" class="btn-primary" onclick="window.print()">Print Receipt</button>
-          <a href="./sales.html" class="btn-outline">Back to Sales</a>
-        </div>
-      </section>
+        <section class="section-card">
+          <div id="receiptContainer">
+            <p>Loading receipt...</p>
+          </div>
 
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+            <button type="button" class="btn-primary" onclick="window.print()">Print Receipt</button>
+            <a href="./sales.html" class="btn-outline">Back to Sales</a>
+          </div>
+        </section>
+
+      </div>
     </main>
+
+    <nav class="bottom-nav">
+      <a href="./dashboard.html" class="bottom-nav-item">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="./products.html" class="bottom-nav-item">
+        <span>📦</span>
+        <small>Products</small>
+      </a>
+
+      <a href="./sales.html" class="bottom-nav-item active">
+        <span>🛒</span>
+        <small>Sales</small>
+      </a>
+
+      <a href="./settings.html" class="bottom-nav-item">
+        <span>⚙️</span>
+        <small>More</small>
+      </a>
+    </nav>
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/config.js"></script>
   <script src="./js/supabase.js"></script>
