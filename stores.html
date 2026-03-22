@@ -4,80 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Stores</title>
-
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/style.css?v=204" />
 </head>
-
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <!-- TOP -->
     <header class="app-topbar">
       <div>
         <p class="eyebrow-text">StockFlow</p>
         <h1 class="page-title">Stores</h1>
       </div>
-
-      <div class="topbar-user">
-        <strong id="welcomeName">Loading...</strong>
-        <p id="welcomeRole" class="small-text"></p>
-      </div>
     </header>
 
-    <!-- MAIN -->
     <main class="app-content">
+      <div class="dashboard-container">
 
-      <!-- FORM -->
-      <section class="modern-card">
-        <h3 id="storeFormTitle">Create Store</h3>
+        <section class="section-card">
+          <h3>Create Store</h3>
 
-        <form id="storeForm">
-          <input type="hidden" id="editingStoreId" />
+          <form id="storeForm">
+            <div class="form-group">
+              <label>Store Name</label>
+              <input type="text" id="storeName" required />
+            </div>
 
-          <div class="form-group">
-            <label>Store Name</label>
-            <input type="text" id="storeName" required />
-          </div>
+            <button class="btn-primary full-btn">Create Store</button>
+          </form>
 
-          <div class="form-group">
-            <label>Store Type</label>
-            <input type="text" id="storeType" />
-          </div>
+          <p id="storeMsg" class="message"></p>
+        </section>
 
-          <div class="form-group">
-            <label>Address</label>
-            <input type="text" id="storeAddress" />
-          </div>
+        <section class="section-card">
+          <h3>Your Stores</h3>
+          <div id="storeList">Loading...</div>
+        </section>
 
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button type="submit" class="btn-primary" id="saveStoreBtn">Save</button>
-            <button type="button" id="cancelEditBtn" class="btn-outline" style="display:none;">
-              Cancel
-            </button>
-          </div>
-        </form>
-
-        <p id="storeMessage" class="message"></p>
-      </section>
-
-      <!-- STORE LIST -->
-      <section class="modern-card">
-        <div class="section-row">
-          <h3>Stores</h3>
-        </div>
-
-        <div id="storesList">
-          Loading...
-        </div>
-      </section>
-
+      </div>
     </main>
 
-    <!-- NAV -->
     <nav class="bottom-nav">
-
       <a href="./dashboard.html" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
@@ -93,21 +58,14 @@
         <small>Sales</small>
       </a>
 
-      <a href="./settings.html" class="bottom-nav-item">
-        <span>⚙️</span>
-        <small>More</small>
+      <a href="./stores.html" class="bottom-nav-item active">
+        <span>🏪</span>
+        <small>Stores</small>
       </a>
-
-      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span>
-        <small>Logout</small>
-      </button>
-
     </nav>
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/config.js"></script>
   <script src="./js/supabase.js"></script>
