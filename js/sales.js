@@ -1,243 +1,326 @@
 let cart = [];
+let salesProductsCache = [];
 
-// ======================
-// INIT
-// ======================
 async function loadSalesPage() {
   const auth = await requireAuth();
   if (!auth) return;
 
   fillHeader(auth.profile);
 
-  await loadStores(auth.profile);
-  await loadCustomers(auth.profile);
-}
+  if (!auth.profile.company_id) {
+    const salesProductsList = document.getElementById("salesProductsList");
+    const recentSalesList = document.getElementById("recentSalesList");
 
-loadSalesPage();
-
-// ======================
-// LOAD STORES
-// ======================
-async function loadStores(profile) {
-  const select = document.getElementById("salesStore");
-  if (!select) return;
-
-  let stores = [];
-
-  if (["director", "assistant_director"].includes(profile.role)) {
-    const { data } = await supabaseClient
-      .from("stores")
-      .select("id, name")
-      .eq("company_id", profile.company_id);
-
-    stores = data || [];
-  } else {
-    const { data: access } = await supabaseClient
-      .from("staff_store_access")
-      .select("store_id")
-      .eq("staff_id", currentUser.id);
-
-    const ids = (access || []).map(i => i.store_id);
-
-    if (ids.length) {
-      const { data } = await supabaseClient
-        .from("stores")
-        .select("id, name")
-        .in("id", ids);
-
-      stores = data || [];
+    if (salesProductsList) {
+      salesProductsList.innerHTML = "<p>Create a company first before recording sales.</p>";
     }
-  }
 
-  select.innerHTML = `<option value="">Select store</option>`;
-  stores.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = s.name;
-    select.appendChild(opt);
-  });
-}
-
-// ======================
-// LOAD CUSTOMERS
-// ======================
-async function loadCustomers(profile) {
-  const select = document.getElementById("saleCustomer");
-  if (!select) return;
-
-  const { data } = await supabaseClient
-    .from("customers")
-    .select("id, name")
-    .eq("company_id", profile.company_id);
-
-  const customers = data || [];
-
-  customers.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.name;
-    select.appendChild(opt);
-  });
-}
-
-// ======================
-// LOAD PRODUCTS
-// ======================
-document.getElementById("salesStore")?.addEventListener("change", async (e) => {
-  const storeId = e.target.value;
-  if (!storeId) return;
-
-  const { data } = await supabaseClient
-    .from("products")
-    .select("*")
-    .eq("store_id", storeId);
-
-  renderProducts(data || []);
-});
-
-function renderProducts(products) {
-  const list = document.getElementById("salesProductsList");
-
-  if (!products.length) {
-    list.innerHTML = "<p>No products</p>";
+    if (recentSalesList) {
+      recentSalesList.innerHTML = "<p>No company found.</p>";
+    }
     return;
   }
 
-  list.innerHTML = products.map(p => `
+  await loadStores();
+  await loadRecentSales();
+  renderCart();
+}
+
+async function loadStores() {
+  const select = document.getElementById("salesStore");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Select store</option>`;
+
+  const { data, error } = await supabaseClient
+    .from("stores")
+    .select("id, name")
+    .eq("company_id", currentProfile.company_id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("LOAD SALES STORES ERROR:", error);
+    return;
+  }
+
+  (data || []).forEach((store) => {
+    const option = document.createElement("option");
+    option.value = store.id;
+    option.textContent = store.name;
+    select.appendChild(option);
+  });
+}
+
+document.getElementById("salesStore")?.addEventListener("change", async (e) => {
+  const storeId = e.target.value;
+  await loadProductsForStore(storeId);
+});
+
+document.getElementById("productSearch")?.addEventListener("input", () => {
+  renderSalesProducts();
+});
+
+async function loadProductsForStore(storeId) {
+  const list = document.getElementById("salesProductsList");
+  if (!list) return;
+
+  if (!storeId) {
+    salesProductsCache = [];
+    list.innerHTML = "<p>Select a store first.</p>";
+    return;
+  }
+
+  list.innerHTML = "<p>Loading products...</p>";
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("LOAD SALES PRODUCTS ERROR:", error);
+    list.innerHTML = "<p>Unable to load products.</p>";
+    return;
+  }
+
+  salesProductsCache = data || [];
+  renderSalesProducts();
+}
+
+function renderSalesProducts() {
+  const list = document.getElementById("salesProductsList");
+  const searchValue = document.getElementById("productSearch")?.value.trim().toLowerCase() || "";
+
+  if (!list) return;
+
+  let filtered = salesProductsCache;
+
+  if (searchValue) {
+    filtered = filtered.filter((p) =>
+      String(p.name || "").toLowerCase().includes(searchValue)
+    );
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = "<p>No matching products found.</p>";
+    return;
+  }
+
+  list.innerHTML = filtered.map((product) => `
     <div class="product-card">
-      <strong>${p.name}</strong>
-      <p>₦${Number(p.selling_price).toLocaleString()}</p>
-      <button onclick="addToCart('${p.id}', '${p.name}', ${p.selling_price})">
-        Add
+      ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" />` : ""}
+      <strong>${product.name}</strong>
+      <p>${product.category || "No category"}</p>
+      <p>₦${Number(product.selling_price || 0).toLocaleString()}</p>
+      <small>Qty: ${Number(product.quantity || 0)}</small>
+      <button
+        type="button"
+        class="btn-primary full-btn"
+        style="margin-top:10px;"
+        onclick="addToCart('${product.id}')"
+        ${Number(product.quantity || 0) <= 0 ? "disabled" : ""}
+      >
+        ${Number(product.quantity || 0) <= 0 ? "Out of Stock" : "Add to Cart"}
       </button>
     </div>
   `).join("");
 }
 
-// ======================
-// CART
-// ======================
-function addToCart(id, name, price) {
-  const item = cart.find(i => i.id === id);
+function addToCart(productId) {
+  const product = salesProductsCache.find((p) => p.id === productId);
+  if (!product) return;
 
-  if (item) {
-    item.qty += 1;
+  const existing = cart.find((item) => item.id === productId);
+
+  if (existing) {
+    if (existing.quantity >= Number(product.quantity || 0)) {
+      alert("Not enough stock available.");
+      return;
+    }
+    existing.quantity += 1;
   } else {
-    cart.push({ id, name, price, qty: 1 });
+    if (Number(product.quantity || 0) <= 0) {
+      alert("Product is out of stock.");
+      return;
+    }
+
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.selling_price || 0),
+      quantity: 1,
+      stock: Number(product.quantity || 0)
+    });
   }
 
+  renderCart();
+}
+
+function increaseCartItem(productId) {
+  const item = cart.find((row) => row.id === productId);
+  if (!item) return;
+
+  if (item.quantity >= item.stock) {
+    alert("Cannot add more than available stock.");
+    return;
+  }
+
+  item.quantity += 1;
+  renderCart();
+}
+
+function decreaseCartItem(productId) {
+  const item = cart.find((row) => row.id === productId);
+  if (!item) return;
+
+  item.quantity -= 1;
+
+  if (item.quantity <= 0) {
+    cart = cart.filter((row) => row.id !== productId);
+  }
+
+  renderCart();
+}
+
+function removeCartItem(productId) {
+  cart = cart.filter((row) => row.id !== productId);
   renderCart();
 }
 
 function renderCart() {
-  const list = document.getElementById("cartList");
+  const cartList = document.getElementById("cartList");
+  const cartTotal = document.getElementById("cartTotal");
+
+  if (!cartList || !cartTotal) return;
 
   if (!cart.length) {
-    list.innerHTML = "<p>No items in cart.</p>";
-    updateTotals();
+    cartList.innerHTML = "<p>No items in cart.</p>";
+    cartTotal.textContent = "0";
     return;
   }
 
-  list.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <strong>${item.name}</strong>
-      <p>${item.qty} x ₦${item.price}</p>
-    </div>
-  `).join("");
+  let total = 0;
 
-  updateTotals();
+  cartList.innerHTML = cart.map((item) => {
+    const subtotal = Number(item.price || 0) * Number(item.quantity || 0);
+    total += subtotal;
+
+    return `
+      <div class="modern-list-card">
+        <strong>${item.name}</strong>
+        <p>₦${Number(item.price).toLocaleString()} × ${item.quantity}</p>
+        <small>Subtotal: ₦${subtotal.toLocaleString()}</small>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+          <button type="button" class="btn-outline inline-btn" onclick="decreaseCartItem('${item.id}')">-</button>
+          <button type="button" class="btn-outline inline-btn" onclick="increaseCartItem('${item.id}')">+</button>
+          <button type="button" class="btn-danger inline-btn" onclick="removeCartItem('${item.id}')">Remove</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  cartTotal.textContent = total.toLocaleString();
 }
 
-// ======================
-// TOTALS
-// ======================
-function updateTotals() {
-  const subtotal = cart.reduce((sum, i) => sum + i.qty * i.price, 0);
-
-  document.getElementById("cartSubtotal").textContent = subtotal;
-  document.getElementById("cartTotal").textContent = subtotal;
-
-  const cash = Number(document.getElementById("cashReceived")?.value || 0);
-  const change = cash - subtotal;
-
-  document.getElementById("cartChange").textContent = change > 0 ? change : 0;
-}
-
-// ======================
-// CHECKOUT
-// ======================
 document.getElementById("checkoutBtn")?.addEventListener("click", async () => {
   const msg = document.getElementById("salesMessage");
-
-  if (!cart.length) {
-    msg.textContent = "Cart is empty";
-    return;
-  }
-
-  const storeId = document.getElementById("salesStore").value;
-  const customerId = document.getElementById("saleCustomer").value || null;
-  const paymentMethod = document.getElementById("paymentMethod").value;
+  const storeId = document.getElementById("salesStore")?.value;
 
   if (!storeId) {
-    msg.textContent = "Select store";
+    if (msg) msg.textContent = "Select a store first.";
     return;
   }
 
-  const total = cart.reduce((sum, i) => sum + i.qty * i.price, 0);
+  if (!cart.length) {
+    if (msg) msg.textContent = "Add at least one product to cart.";
+    return;
+  }
 
-  msg.textContent = "Processing sale...";
+  const total = cart.reduce((sum, item) => {
+    return sum + Number(item.price || 0) * Number(item.quantity || 0);
+  }, 0);
 
-  const { data: sale, error } = await supabaseClient
+  if (msg) msg.textContent = "Processing sale...";
+
+  const { data: saleData, error: saleError } = await supabaseClient
     .from("sales")
-    .insert([{
-      company_id: currentProfile.company_id,
-      store_id: storeId,
-      sold_by: currentUser.id,
-      customer_id: customerId,
-      total_amount: total,
-      payment_method: paymentMethod
-    }])
+    .insert([
+      {
+        company_id: currentProfile.company_id,
+        store_id: storeId,
+        sold_by: currentUser.id,
+        total: total
+      }
+    ])
     .select()
     .single();
 
-  if (error) {
-    msg.textContent = error.message;
+  if (saleError) {
+    console.error("CREATE SALE ERROR:", saleError);
+    if (msg) msg.textContent = saleError.message || "Failed to save sale.";
     return;
   }
 
-  const saleId = sale.id;
+  for (const item of cart) {
+    const matchingProduct = salesProductsCache.find((p) => p.id === item.id);
+    const currentQty = Number(matchingProduct?.quantity || 0);
+    const newQty = currentQty - Number(item.quantity || 0);
 
-  // insert items
-  for (let item of cart) {
-    await supabaseClient.from("sale_items").insert([{
-      sale_id: saleId,
-      product_id: item.id,
-      quantity: item.qty,
-      unit_price: item.price,
-      subtotal: item.qty * item.price
-    }]);
-
-    // reduce stock
-    await supabaseClient
+    const { error: updateError } = await supabaseClient
       .from("products")
-      .update({
-        quantity: supabaseClient.rpc ? undefined : undefined
-      })
+      .update({ quantity: newQty })
       .eq("id", item.id);
 
-    // safer stock reduction
-    await supabaseClient.rpc("increment", {
-      row_id: item.id,
-      amount: -item.qty
-    }).catch(() => {});
+    if (updateError) {
+      console.error("UPDATE PRODUCT STOCK ERROR:", updateError);
+    }
   }
 
-  msg.textContent = "Sale completed";
-
+  if (msg) msg.textContent = "Sale completed successfully.";
   cart = [];
   renderCart();
 
+  await loadProductsForStore(storeId);
+  await loadRecentSales();
+
   setTimeout(() => {
-    window.location.href = "./receipt.html?sale=" + saleId;
-  }, 800);
+    window.location.href = `./receipt.html?sale=${saleData.id}`;
+  }, 700);
 });
+
+async function loadRecentSales() {
+  const list = document.getElementById("recentSalesList");
+  if (!list) return;
+
+  const { data, error } = await supabaseClient
+    .from("sales")
+    .select("*")
+    .eq("company_id", currentProfile.company_id)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  if (error) {
+    console.error("LOAD RECENT SALES ERROR:", error);
+    list.innerHTML = "<p>Unable to load recent sales.</p>";
+    return;
+  }
+
+  const sales = data || [];
+
+  if (!sales.length) {
+    list.innerHTML = "<p>No sales yet.</p>";
+    return;
+  }
+
+  list.innerHTML = sales.map((sale) => `
+    <div class="modern-list-card">
+      <strong>₦${Number(sale.total || 0).toLocaleString()}</strong>
+      <p>Store ID: ${sale.store_id || "-"}</p>
+      <small>${new Date(sale.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
+}
+
+loadSalesPage();
