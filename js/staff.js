@@ -73,7 +73,7 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
 
   if (msg) msg.textContent = "Sending invitation...";
 
-  const { error } = await supabaseClient
+  const { error: inviteError } = await supabaseClient
     .from("staff_invitations")
     .insert([
       {
@@ -86,16 +86,62 @@ document.getElementById("staffInviteForm")?.addEventListener("submit", async (e)
       }
     ]);
 
-  if (error) {
-    console.error("SEND INVITATION ERROR:", error);
-    if (msg) msg.textContent = error.message || "Failed to send invitation.";
+  if (inviteError) {
+    console.error("SEND INVITATION ERROR:", inviteError);
+    if (msg) msg.textContent = inviteError.message || "Failed to send invitation.";
     return;
   }
 
-  if (msg) msg.textContent = "Invitation sent successfully.";
+  // Create in-app notification if the invited user already has an account
+  const { data: invitedProfile, error: profileLookupError } = await supabaseClient
+    .from("profiles")
+    .select("id, full_name, email")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (profileLookupError) {
+    console.error("INVITED PROFILE LOOKUP ERROR:", profileLookupError);
+  }
+
+  if (invitedProfile?.id) {
+    const companyName = await getCompanyName(currentProfile.company_id);
+
+    const { error: notificationError } = await supabaseClient
+      .from("notifications")
+      .insert([
+        {
+          user_id: invitedProfile.id,
+          title: "New Staff Invitation",
+          message: `You were invited to join ${companyName} as ${formatRole(role)}.`,
+          type: "staff_invitation",
+          is_read: false
+        }
+      ]);
+
+    if (notificationError) {
+      console.error("NOTIFICATION INSERT ERROR:", notificationError);
+    }
+  }
+
+  if (msg) {
+    msg.textContent = invitedProfile?.id
+      ? "Invitation sent successfully."
+      : "Invitation saved, but the user has not signed up yet so no in-app notification could be delivered.";
+  }
+
   document.getElementById("staffInviteForm")?.reset();
   await loadSentInvitations(currentProfile.company_id);
 });
+
+async function getCompanyName(companyId) {
+  const { data } = await supabaseClient
+    .from("companies")
+    .select("name")
+    .eq("id", companyId)
+    .maybeSingle();
+
+  return data?.name || "your company";
+}
 
 async function loadSentInvitations(companyId) {
   const list = document.getElementById("staffInvitationsList");
