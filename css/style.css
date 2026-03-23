@@ -1,4 +1,4 @@
-:root {
+6:root {
   --primary: #1d4ed8;
   --primary-dark: #0f2f73;
   --primary-light: #2563eb;
@@ -678,5 +678,114 @@ textarea:focus {
 @media (min-width: 600px) {
   .dashboard-two-col {
     grid-template-columns: 1fr 1fr;
+  }
+}
+.product-premium-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid #eef2f7;
+}
+
+.product-premium-left {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.product-premium-image {
+  width: 84px;
+  height: 84px;
+  border-radius: 18px;
+  object-fit: cover;
+  background: #f4f7fb;
+}
+
+.product-fallback-box {
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+}
+
+.product-premium-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-premium-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.product-premium-name {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+
+.product-premium-stock {
+  color: #d18b10;
+  font-style: italic;
+  font-size: 15px;
+}
+
+.low-stock-text {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.product-premium-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.product-meta-label {
+  display: block;
+  color: #94a3b8;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.product-premium-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.floating-product-btn {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  z-index: 20;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 14px 18px;
+  font-weight: 700;
+  box-shadow: 0 12px 28px rgba(234, 88, 12, 0.28);
+}
+
+@media (max-width: 460px) {
+  .product-premium-card {
+    grid-template-columns: 72px 1fr;
+    padding: 12px;
+  }
+
+  .product-premium-image {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+  }
+
+  .product-premium-name {
+    font-size: 16px;
   }
 }
