@@ -4,17 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StockFlow | Products</title>
-  <link rel="manifest" href="./manifest.json?v=203" />
+  <link rel="manifest" href="./manifest.json?v=1000" />
   <meta name="theme-color" content="#0b5ed7" />
-  <link rel="stylesheet" href="./css/style.css?v=203" />
+  <link rel="stylesheet" href="./css/style.css?v=1000" />
 </head>
 <body class="app-body">
   <div class="mobile-app-shell">
 
-    <header class="app-topbar">
-      <div>
-        <p class="eyebrow-text">StockFlow</p>
-        <h1 class="page-title">Products</h1>
+    <header class="app-topbar premium-topbar">
+      <div class="topbar-left-group">
+        <div>
+          <p class="eyebrow-text">StockFlow</p>
+          <h1 class="page-title">Products</h1>
+        </div>
       </div>
 
       <div class="topbar-user">
@@ -26,20 +28,62 @@
     <main class="app-content">
       <div class="dashboard-container">
 
-        <section class="hero-dashboard-card">
+        <section class="hero-dashboard-card premium-hero-card">
           <div class="hero-dashboard-text">
-            <p class="hero-eyebrow">Inventory Manager</p>
-            <h2>Add and manage products</h2>
-            <p class="hero-subtext">Create products, assign store, set pricing and stock quantity.</p>
+            <p class="hero-eyebrow">Product / Services</p>
+            <h2>Manage your inventory</h2>
+            <p class="hero-subtext">
+              Add products, track stock, monitor value, and manage inventory by store.
+            </p>
+          </div>
+
+          <div class="hero-dashboard-actions">
+            <a href="./sales.html?v=1000" class="hero-main-btn hero-sale-btn">Go to Sales</a>
+            <a href="./reports.html?v=1000" class="hero-main-btn hero-product-btn">View Breakdown</a>
           </div>
         </section>
 
         <section class="section-card">
           <div class="section-head-row">
-            <h3>Add Product</h3>
+            <h3>Product Overview</h3>
+            <select id="productStoreFilter" style="max-width:180px;">
+              <option value="">All Products</option>
+            </select>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📦</div>
+              <p>Total Products</p>
+              <h3 id="totalProductsCount">0</h3>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">🧮</div>
+              <p>Total Stock Value</p>
+              <h3 id="totalStockValue">₦0</h3>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+            <button id="openProductFormBtn" type="button" class="btn-primary inline-btn">Add New Item</button>
+            <a href="./reports.html?v=1000" class="btn-outline inline-btn">View Breakdown</a>
+          </div>
+        </section>
+
+        <section id="productFormSection" class="section-card">
+          <div class="section-head-row">
+            <h3 id="productFormTitle">Add Product</h3>
           </div>
 
           <form id="productForm">
+            <input type="hidden" id="productId" />
+
+            <div class="form-group">
+              <label for="productName">Product Name</label>
+              <input type="text" id="productName" placeholder="Enter product name" required />
+            </div>
+
             <div class="form-group">
               <label for="productStore">Store</label>
               <select id="productStore" required>
@@ -48,50 +92,43 @@
             </div>
 
             <div class="form-group">
-              <label for="productName">Product Name</label>
-              <input type="text" id="productName" placeholder="Enter product name" required />
-            </div>
-
-            <div class="form-group">
               <label for="productCategory">Category</label>
-              <input type="text" id="productCategory" placeholder="Enter category" />
-            </div>
-
-            <div class="form-group">
-              <label for="productSku">SKU</label>
-              <input type="text" id="productSku" placeholder="Enter SKU" />
+              <input type="text" id="productCategory" placeholder="e.g. Fabrics, Food, Cosmetics" />
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="costPrice">Cost Price</label>
-                <input type="number" id="costPrice" placeholder="0" />
+                <label for="productQuantity">Quantity</label>
+                <input type="number" id="productQuantity" min="0" placeholder="0" required />
               </div>
 
               <div class="form-group">
-                <label for="sellingPrice">Selling Price</label>
-                <input type="number" id="sellingPrice" placeholder="0" />
+                <label for="productReorderLevel">Reorder Level</label>
+                <input type="number" id="productReorderLevel" min="0" placeholder="0" />
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="productQty">Quantity</label>
-                <input type="number" id="productQty" placeholder="0" />
+                <label for="productPrice">Unit Price</label>
+                <input type="number" id="productPrice" min="0" step="0.01" placeholder="0" required />
               </div>
 
               <div class="form-group">
-                <label for="reorderLevel">Reorder Level</label>
-                <input type="number" id="reorderLevel" placeholder="0" />
+                <label for="productSellingPrice">Selling Price</label>
+                <input type="number" id="productSellingPrice" min="0" step="0.01" placeholder="0" required />
               </div>
             </div>
 
             <div class="form-group">
-              <label for="productImage">Product Image</label>
-              <input type="file" id="productImage" accept="image/*" />
+              <label for="productImage">Image URL</label>
+              <input type="text" id="productImage" placeholder="https://example.com/image.jpg" />
             </div>
 
-            <button type="submit" class="btn-primary full-btn">Save Product</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button type="submit" class="btn-primary inline-btn" id="saveProductBtn">Save Product</button>
+              <button type="button" class="btn-outline inline-btn" id="clearProductFormBtn">Clear</button>
+            </div>
           </form>
 
           <p id="productMessage" class="message"></p>
@@ -99,50 +136,56 @@
 
         <section class="section-card">
           <div class="section-head-row">
-            <h3>Products</h3>
+            <h3>Products List</h3>
+          </div>
+
+          <div class="form-group" style="margin-bottom:10px;">
+            <input type="text" id="productSearch" placeholder="Search products..." />
           </div>
 
           <div id="productsList" class="products-grid">
-            Loading...
+            <p>Loading products...</p>
           </div>
         </section>
 
       </div>
     </main>
 
+    <a href="#productFormSection" id="floatingNewProductBtn" class="floating-product-btn">＋ New Product</a>
+
     <nav class="bottom-nav">
-      <a href="./dashboard.html" class="bottom-nav-item">
+      <a href="./dashboard.html?v=1000" class="bottom-nav-item">
         <span>🏠</span>
         <small>Home</small>
       </a>
 
-      <a href="./products.html" class="bottom-nav-item active">
+      <a href="./products.html?v=1000" class="bottom-nav-item active">
         <span>📦</span>
         <small>Products</small>
       </a>
 
-      <a href="./sales.html" class="bottom-nav-item">
+      <a href="./sales.html?v=1000" class="bottom-nav-item">
         <span>🛒</span>
         <small>Sales</small>
       </a>
 
-      <a href="./settings.html" class="bottom-nav-item">
-        <span>⚙️</span>
-        <small>More</small>
+      <a href="./ask-ai.html?v=1000" class="bottom-nav-item">
+        <span>🤖</span>
+        <small>Ask AI</small>
       </a>
 
-      <button id="logoutBtn" class="bottom-nav-item logout-nav-btn" type="button">
-        <span>🚪</span>
-        <small>Logout</small>
-      </button>
+      <a href="./settings.html?v=1000" class="bottom-nav-item">
+        <span>⋯</span>
+        <small>More</small>
+      </a>
     </nav>
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js?v=203"></script>
-  <script src="./js/supabase.js?v=203"></script>
-  <script src="./js/shared.js?v=203"></script>
-  <script src="./js/products.js?v=203"></script>
+  <script src="./js/config.js?v=1000"></script>
+  <script src="./js/supabase.js?v=1000"></script>
+  <script src="./js/shared.js?v=1000"></script>
+  <script src="./js/products.js?v=1000"></script>
 </body>
 </html>
